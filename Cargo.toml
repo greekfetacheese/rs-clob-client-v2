@@ -61,6 +61,7 @@ reqwest = { version = "0.13.2", features = ["json", "query", "rustls"] }
 #rust_decimal = { version = "1.41.0", features = ["serde"] }
 #rust_decimal_macros = "1.40.0"
 num-traits = "0.2.19"
+bincode-next =  "2"
 fixed-num = {git = "https://github.com/greekfetacheese/fixed-num", branch = "main", features = ["serde", "bincode"]}
 secrecy = { version = "0.10", features = ["serde"] }
 serde = "1.0.228"

@@ -246,7 +246,16 @@ where
         loop {
             tokio::select! {
                 // Handle incoming messages
-                Some(msg) = read.next() => {
+                msg_opt = read.next() => {
+                    let msg = match msg_opt {
+                        Some(m) => m,
+                        None => {
+                            #[cfg(feature = "tracing")]
+                            tracing::debug!("WebSocket stream closed by remote server.");
+                            break;
+                        }
+                    };
+
                     match msg {
                         Ok(Message::Text(text)) if text == "PONG" => {
                             _ = pong_tx.send(Instant::now());
@@ -293,22 +302,35 @@ where
                 }
 
                 // Handle outgoing messages from subscriptions
-                Some(text) = sender_rx.recv() => {
-                    if write.send(Message::Text(text.into())).await.is_err() {
-                        break;
+                text_opt = sender_rx.recv() => {
+                    match text_opt {
+                        Some(text) => {
+                            if write.send(Message::Text(text.into())).await.is_err() {
+                                break;
+                            }
+                        }
+                        None => {
+                            // The ConnectionManager was dropped. Cleanly exit the task!
+                            #[cfg(feature = "tracing")]
+                            tracing::debug!("Sender channel closed, terminating websocket connection.");
+                            break;
+                        }
                     }
                 }
 
                 // Handle PING requests from heartbeat loop
-                Some(()) = ping_rx.recv() => {
-                    if write.send(Message::Text("PING".into())).await.is_err() {
-                        break;
+                ping_opt = ping_rx.recv() => {
+                    match ping_opt {
+                        Some(()) => {
+                            if write.send(Message::Text("PING".into())).await.is_err() {
+                                break;
+                            }
+                        }
+                        None => {
+                            // Heartbeat loop died
+                            break;
+                        }
                     }
-                }
-
-                // Check if connection is still active
-                else => {
-                    break;
                 }
             }
         }
