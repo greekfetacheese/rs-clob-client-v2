@@ -383,6 +383,15 @@ pub struct Config {
     #[builder(default = Duration::from_secs(5))]
     /// How often the [`Client`] will automatically submit heartbeats. The default is five (5) seconds.
     heartbeat_interval: Duration,
+
+    client: Option<ReqwestClient>,
+}
+
+impl Config {
+    pub fn with_client(mut self, client: ReqwestClient) -> Self {
+        self.client = Some(client);
+        self
+    }
 }
 
 impl Default for Config {
@@ -393,6 +402,7 @@ impl Default for Config {
             builder_code: None,
             #[cfg(feature = "heartbeats")]
             heartbeat_interval: Duration::from_secs(5),
+            client: None,
         }
     }
 }
@@ -1421,7 +1431,7 @@ impl Client<Unauthenticated> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn new(host: &str, config: Config) -> Result<Client<Unauthenticated>> {
+    pub fn new(host: &str, mut config: Config) -> Result<Client<Unauthenticated>> {
         let mut headers = HeaderMap::new();
 
         headers.insert("User-Agent", HeaderValue::from_static("rs_clob_client"));
@@ -1429,7 +1439,11 @@ impl Client<Unauthenticated> {
         headers.insert("Connection", HeaderValue::from_static("keep-alive"));
         headers.insert("Content-Type", HeaderValue::from_static("application/json"));
 
-        let client = ReqwestClient::builder().default_headers(headers).build()?;
+        let client = if config.client.is_some() {
+            config.client.take().unwrap()
+        } else {
+            ReqwestClient::builder().default_headers(headers).build()?
+        };
 
         let geoblock_host = Url::parse(
             config
