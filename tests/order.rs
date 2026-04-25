@@ -3910,7 +3910,7 @@ mod v2 {
                 .build()
                 .await?;
 
-            let signed = client.sign(&signer, signable).await?;
+            let (signed, _) = client.sign(&signer, signable).await?;
 
             // Verify the signature is non-zero
             assert_ne!(signed.signature.r(), U256::ZERO);
@@ -4467,7 +4467,7 @@ mod v1 {
                 .build()
                 .await?;
 
-            let signed = client.sign(&signer, signable.clone()).await?;
+            let (signed, _) = client.sign(&signer, signable.clone()).await?;
 
             // Recompute the expected signature using the explicit V1 domain and
             // verify it matches what `client.sign` produced. This anchors the
@@ -4540,7 +4540,7 @@ mod v1 {
                 .sign_hash(&v1.eip712_signing_hash(&v2_like_domain))
                 .await?;
 
-            let real = client.sign(&signer, signable).await?;
+            let (real, _) = client.sign(&signer, signable).await?;
             assert_ne!(real.signature, wrong_domain_sig);
 
             Ok(())
@@ -4653,7 +4653,7 @@ mod v1 {
             };
             let expected_sig = signer.sign_hash(&v1.eip712_signing_hash(&expected)).await?;
 
-            let signed = client.sign(&signer, signable).await?;
+            let (signed, _) = client.sign(&signer, signable).await?;
             assert_eq!(signed.signature, expected_sig);
 
             Ok(())
@@ -4705,7 +4705,7 @@ mod v1 {
             };
             let expected_sig = signer.sign_hash(&v2.eip712_signing_hash(&expected)).await?;
 
-            let signed = client.sign(&signer, signable).await?;
+            let (signed, _) = client.sign(&signer, signable).await?;
             assert_eq!(signed.signature, expected_sig);
 
             Ok(())

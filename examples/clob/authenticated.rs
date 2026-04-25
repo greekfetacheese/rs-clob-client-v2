@@ -88,7 +88,7 @@ async fn main() -> anyhow::Result<()> {
         .side(Side::Buy)
         .build()
         .await?;
-    let signed_order = client.sign(&signer, market_order).await?;
+    let (signed_order, _) = client.sign(&signer, market_order).await?;
     match client.post_order(signed_order).await {
         Ok(r) => {
             info!(endpoint = "post_order", order_type = "market", order_id = %r.order_id, success = r.success);
@@ -107,7 +107,7 @@ async fn main() -> anyhow::Result<()> {
         .side(Side::Buy)
         .build()
         .await?;
-    let signed_order = client.sign(&signer, limit_order).await?;
+    let (signed_order, _) = client.sign(&signer, limit_order).await?;
     match client.post_order(signed_order).await {
         Ok(r) => {
             info!(endpoint = "post_order", order_type = "limit", order_id = %r.order_id, success = r.success);

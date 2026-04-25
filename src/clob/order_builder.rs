@@ -376,7 +376,7 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
         let before_version = client.resolve_version(false).await.unwrap_or(0);
         let retry = self.clone();
         let order = self.build().await?;
-        let signed = client.sign(signer, order).await?;
+        let (signed, _) = client.sign(signer, order).await?;
         let result = client.post_order(signed).await;
         if let Err(err) = &result {
             if let Some(status) = err.downcast_ref::<crate::error::Status>() {
@@ -387,7 +387,7 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
                     let after_version = client.resolve_version(false).await.unwrap_or(0);
                     if after_version != before_version {
                         let order = retry.build().await?;
-                        let signed = client.sign(signer, order).await?;
+                        let (signed, _) = client.sign(signer, order).await?;
                         return client.post_order(signed).await;
                     }
                 }
@@ -639,7 +639,7 @@ impl<K: AuthKind> OrderBuilder<Market, K> {
         let before_version = client.resolve_version(false).await.unwrap_or(0);
         let retry = self.clone();
         let order = self.build().await?;
-        let signed = client.sign(signer, order).await?;
+        let (signed, _) = client.sign(signer, order).await?;
         let result = client.post_order(signed).await;
         if let Err(err) = &result {
             if let Some(status) = err.downcast_ref::<crate::error::Status>() {
@@ -650,7 +650,7 @@ impl<K: AuthKind> OrderBuilder<Market, K> {
                     let after_version = client.resolve_version(false).await.unwrap_or(0);
                     if after_version != before_version {
                         let order = retry.build().await?;
-                        let signed = client.sign(signer, order).await?;
+                        let (signed, _) = client.sign(signer, order).await?;
                         return client.post_order(signed).await;
                     }
                 }

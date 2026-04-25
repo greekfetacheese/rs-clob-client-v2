@@ -7,7 +7,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 
 use alloy::dyn_abi::Eip712Domain;
-use alloy::primitives::U256;
+use alloy::primitives::{FixedBytes, U256};
 use alloy::signers::Signer;
 use alloy::sol_types::SolStruct as _;
 use async_stream::try_stream;
@@ -1687,7 +1687,7 @@ impl<K: Kind> Client<Authenticated<K>> {
             post_only,
             defer_exec,
         }: SignableOrder,
-    ) -> Result<SignedOrder> {
+    ) -> Result<(SignedOrder, FixedBytes<32>)> {
         let chain_id = signer
             .chain_id()
             .expect("Validated not none in `authenticate`");
@@ -1700,7 +1700,7 @@ impl<K: Kind> Client<Authenticated<K>> {
         let config = contract_config(chain_id, neg_risk)
             .ok_or(Error::missing_contract_config(chain_id, neg_risk))?;
 
-        let signature = match &payload {
+        let (signature, order_hash) = match &payload {
             OrderPayload::V2(p) => {
                 let exchange = config.exchange_v2.ok_or_else(|| {
                     Error::validation(format!(
@@ -1714,9 +1714,9 @@ impl<K: Kind> Client<Authenticated<K>> {
                     verifying_contract: Some(exchange),
                     ..Eip712Domain::default()
                 };
-                signer
-                    .sign_hash(&p.order.eip712_signing_hash(&domain))
-                    .await?
+                let order_hash = p.order.eip712_signing_hash(&domain);
+                let sig = signer.sign_hash(&order_hash).await?;
+                (sig, order_hash)
             }
             OrderPayload::V1(p) => {
                 let domain = Eip712Domain {
@@ -1726,20 +1726,22 @@ impl<K: Kind> Client<Authenticated<K>> {
                     verifying_contract: Some(config.exchange),
                     ..Eip712Domain::default()
                 };
-                signer
-                    .sign_hash(&p.order.eip712_signing_hash(&domain))
-                    .await?
+                let order_hash = p.order.eip712_signing_hash(&domain);
+                let sig = signer.sign_hash(&order_hash).await?;
+                (sig, order_hash)
             }
         };
 
-        Ok(SignedOrder {
+        let signed_order = SignedOrder {
             payload,
             signature,
             order_type,
             owner: self.state().credentials.key,
             post_only,
             defer_exec,
-        })
+        };
+
+        Ok((signed_order, order_hash))
     }
 
     /// Posts a signed order to the orderbook.

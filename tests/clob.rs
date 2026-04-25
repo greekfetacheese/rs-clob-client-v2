@@ -1572,7 +1572,7 @@ mod authenticated {
             .build()
             .await?;
 
-        let signed_order = client.sign(&signer, signable_order.clone()).await?;
+        let (signed_order, _) = client.sign(&signer, signable_order.clone()).await?;
 
         assert_eq!(signed_order.order().maker, funder);
         assert_ne!(signed_order.order().maker, client.address());
@@ -1637,7 +1637,7 @@ mod authenticated {
         });
 
         let signer = LocalSigner::from_str(PRIVATE_KEY)?.with_chain_id(Some(POLYGON));
-        let signed_order = client.sign(&signer, SignableOrder::default()).await?;
+        let (signed_order, _) = client.sign(&signer, SignableOrder::default()).await?;
         let response = client.post_order(signed_order).await?;
 
         let expected = PostOrderResponse::builder()
@@ -1679,7 +1679,7 @@ mod authenticated {
         });
 
         let signer = LocalSigner::from_str(PRIVATE_KEY)?.with_chain_id(Some(POLYGON));
-        let signed_order = client.sign(&signer, SignableOrder::default()).await?;
+        let (signed_order, _) = client.sign(&signer, SignableOrder::default()).await?;
         let response = client.post_order(signed_order).await?;
 
         let expected = PostOrderResponse::builder()
