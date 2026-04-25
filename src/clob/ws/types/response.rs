@@ -1,5 +1,5 @@
 use bon::Builder;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::{DefaultOnNull, DisplayFromStr, NoneAsEmptyString, serde_as};
 #[cfg(feature = "tracing")]
@@ -10,6 +10,8 @@ use crate::clob::types::{OrderStatusType, Side, TraderSide};
 use crate::clob::ws::interest::MessageInterest;
 use crate::error::Kind;
 use crate::types::{B256, Decimal, U256};
+use bincode_next::{Decode, Encode};
+use std::str::FromStr;
 
 /// Top-level WebSocket message wrapper.
 ///
@@ -67,7 +69,7 @@ impl WsMessage {
 /// state of the orderbook with bids and asks arrays.
 #[non_exhaustive]
 #[serde_as]
-#[derive(Debug, Clone, Deserialize, Builder)]
+#[derive(Debug, Clone, Serialize, Deserialize, Builder)]
 pub struct BookUpdate {
     /// Asset/token identifier
     pub asset_id: U256,
@@ -86,14 +88,79 @@ pub struct BookUpdate {
     pub hash: Option<String>,
 }
 
+impl Encode for BookUpdate {
+    fn encode<E: bincode_next::enc::Encoder>(
+        &self,
+        encoder: &mut E,
+    ) -> Result<(), bincode_next::error::EncodeError> {
+        let asset_id_str = self.asset_id.to_string();
+        asset_id_str.encode(encoder)?;
+
+        let market_str = self.market.to_string();
+        market_str.encode(encoder)?;
+
+        self.timestamp.encode(encoder)?;
+        self.bids.encode(encoder)?;
+        self.asks.encode(encoder)?;
+        self.hash.encode(encoder)?;
+        Ok(())
+    }
+}
+
+impl<C> Decode<C> for BookUpdate {
+    fn decode<D: bincode_next::de::Decoder<Context = C>>(
+        decoder: &mut D,
+    ) -> Result<Self, bincode_next::error::DecodeError> {
+        let asset_id_str = String::decode(decoder)?;
+        let asset_id = U256::from_str(&asset_id_str).unwrap();
+
+        let market_str = String::decode(decoder)?;
+        let market = B256::from_str(&market_str).unwrap();
+
+        let timestamp = i64::decode(decoder)?;
+        let bids = Vec::<OrderBookLevel>::decode(decoder)?;
+        let asks = Vec::<OrderBookLevel>::decode(decoder)?;
+        let hash = Option::<String>::decode(decoder)?;
+        Ok(BookUpdate {
+            asset_id,
+            market,
+            timestamp,
+            bids,
+            asks,
+            hash,
+        })
+    }
+}
+
 /// Individual price level in an orderbook.
 #[non_exhaustive]
-#[derive(Debug, Clone, Deserialize, Builder)]
+#[derive(Debug, Clone, Serialize, Deserialize, Builder)]
 pub struct OrderBookLevel {
     /// Price at this level
     pub price: Decimal,
     /// Total size available at this price
     pub size: Decimal,
+}
+
+impl Encode for OrderBookLevel {
+    fn encode<E: bincode_next::enc::Encoder>(
+        &self,
+        encoder: &mut E,
+    ) -> Result<(), bincode_next::error::EncodeError> {
+        self.price.encode(encoder)?;
+        self.size.encode(encoder)?;
+        Ok(())
+    }
+}
+
+impl<C> Decode<C> for OrderBookLevel {
+    fn decode<D: bincode_next::de::Decoder<Context = C>>(
+        decoder: &mut D,
+    ) -> Result<Self, bincode_next::error::DecodeError> {
+        let price = Decimal::decode(decoder)?;
+        let size = Decimal::decode(decoder)?;
+        Ok(OrderBookLevel { price, size })
+    }
 }
 
 /// Unified wire format for `price_change` events.
