@@ -116,13 +116,13 @@ mod deposit {
 }
 
 mod supported_assets {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::bridge::{
         Client,
         types::{SupportedAsset, SupportedAssetsResponse, Token},
     };
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     #[tokio::test]
@@ -175,7 +175,7 @@ mod supported_assets {
                             .decimals(6_u8)
                             .build(),
                     )
-                    .min_checkout_usd(dec!(45))
+                    .min_checkout_usd(Decimal!(45))
                     .build(),
                 SupportedAsset::builder()
                     .chain_id(137_u64)
@@ -188,7 +188,7 @@ mod supported_assets {
                             .decimals(6_u8)
                             .build(),
                     )
-                    .min_checkout_usd(dec!(10))
+                    .min_checkout_usd(Decimal!(10))
                     .build(),
             ])
             .build();

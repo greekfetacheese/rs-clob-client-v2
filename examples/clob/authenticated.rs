@@ -33,7 +33,6 @@ use polymarket_client_sdk_v2::clob::types::{Amount, OrderType, Side};
 use polymarket_client_sdk_v2::clob::{Client, Config};
 use polymarket_client_sdk_v2::types::{Decimal, U256};
 use polymarket_client_sdk_v2::{POLYGON, PRIVATE_KEY_VAR};
-use rust_decimal_macros::dec;
 use tracing::{error, info};
 use tracing_subscriber::EnvFilter;
 use tracing_subscriber::layer::SubscriberExt as _;
@@ -85,7 +84,7 @@ async fn main() -> anyhow::Result<()> {
     let market_order = client
         .market_order()
         .token_id(token_id)
-        .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+        .amount(Amount::usdc(Decimal!(100))?)
         .side(Side::Buy)
         .build()
         .await?;
@@ -103,8 +102,8 @@ async fn main() -> anyhow::Result<()> {
         .token_id(token_id)
         .order_type(OrderType::GTD)
         .expiration(Utc::now() + TimeDelta::days(2))
-        .price(dec!(0.5))
-        .size(Decimal::ONE_HUNDRED)
+        .price(Decimal!(0.5))
+        .size(Decimal!(100))
         .side(Side::Buy)
         .build()
         .await?;

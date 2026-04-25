@@ -17,7 +17,6 @@ use polymarket_client_sdk_v2::clob::types::SignatureType;
 use polymarket_client_sdk_v2::clob::{Client, Config};
 use polymarket_client_sdk_v2::types::{Decimal, b256};
 use reqwest::StatusCode;
-use rust_decimal_macros::dec;
 use serde_json::json;
 use uuid::Uuid;
 
@@ -101,7 +100,7 @@ mod unauthenticated {
         let request = MidpointRequest::builder().token_id(token_1()).build();
         let response = client.midpoint(&request).await?;
 
-        let expected = MidpointResponse::builder().mid(dec!(0.5)).build();
+        let expected = MidpointResponse::builder().mid(Decimal!(0.5)).build();
 
         assert_eq!(response, expected);
         mock.assert();
@@ -127,7 +126,7 @@ mod unauthenticated {
         let response = client.midpoints(&[request]).await?;
 
         let expected = MidpointsResponse::builder()
-            .midpoints(HashMap::from_iter([(token_1(), dec!(0.5))]))
+            .midpoints(HashMap::from_iter([(token_1(), Decimal!(0.5))]))
             .build();
 
         assert_eq!(response, expected);
@@ -156,7 +155,7 @@ mod unauthenticated {
             .build();
         let response = client.price(&request).await?;
 
-        let expected = PriceResponse::builder().price(dec!(0.5)).build();
+        let expected = PriceResponse::builder().price(Decimal!(0.5)).build();
 
         assert_eq!(response, expected);
         mock.assert();
@@ -194,7 +193,7 @@ mod unauthenticated {
 
         let mut price_map = HashMap::new();
         let mut side_map = HashMap::new();
-        side_map.insert(Side::Buy, dec!(0.5));
+        side_map.insert(Side::Buy, Decimal!(0.5));
         price_map.insert(token_1(), side_map);
 
         let request = PriceRequest::builder()
@@ -241,9 +240,9 @@ mod unauthenticated {
 
         let expected = PriceHistoryResponse::builder()
             .history(vec![
-                PricePoint::builder().t(1000).p(dec!(0.5)).build(),
-                PricePoint::builder().t(1500).p(dec!(0.55)).build(),
-                PricePoint::builder().t(2000).p(dec!(0.6)).build(),
+                PricePoint::builder().t(1000).p(Decimal!(0.5)).build(),
+                PricePoint::builder().t(1500).p(Decimal!(0.55)).build(),
+                PricePoint::builder().t(2000).p(Decimal!(0.6)).build(),
             ])
             .build();
 
@@ -281,8 +280,8 @@ mod unauthenticated {
 
         let expected = PriceHistoryResponse::builder()
             .history(vec![
-                PricePoint::builder().t(1000).p(dec!(0.5)).build(),
-                PricePoint::builder().t(2000).p(dec!(0.6)).build(),
+                PricePoint::builder().t(1000).p(Decimal!(0.5)).build(),
+                PricePoint::builder().t(2000).p(Decimal!(0.6)).build(),
             ])
             .build();
 
@@ -308,7 +307,7 @@ mod unauthenticated {
         let request = SpreadRequest::builder().token_id(token_1()).build();
         let response = client.spread(&request).await?;
 
-        let expected = SpreadResponse::builder().spread(dec!(0.5)).build();
+        let expected = SpreadResponse::builder().spread(Decimal!(0.5)).build();
 
         assert_eq!(response, expected);
         mock.assert();
@@ -554,27 +553,27 @@ mod unauthenticated {
             ))
             .neg_risk(false)
             .timestamp(Utc.timestamp_millis_opt(123_456_789).unwrap())
-            .min_order_size(Decimal::ONE_HUNDRED)
+            .min_order_size(Decimal!(100))
             .tick_size(TickSize::Hundredth)
             .asset_id(token_1())
             .bids(vec![
                 OrderSummary::builder()
-                    .price(dec!(0.3))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.3))
+                    .size(Decimal!(100))
                     .build(),
                 OrderSummary::builder()
-                    .price(dec!(0.4))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.4))
+                    .size(Decimal!(100))
                     .build(),
             ])
             .asks(vec![
                 OrderSummary::builder()
-                    .price(dec!(0.6))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.6))
+                    .size(Decimal!(100))
                     .build(),
                 OrderSummary::builder()
-                    .price(dec!(0.7))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.7))
+                    .size(Decimal!(100))
                     .build(),
             ])
             .build();
@@ -624,7 +623,7 @@ mod unauthenticated {
                 ))
                 .neg_risk(false)
                 .timestamp(DateTime::<Utc>::UNIX_EPOCH + TimeDelta::milliseconds(1))
-                .min_order_size(dec!(5))
+                .min_order_size(Decimal!(5))
                 .tick_size(TickSize::Hundredth)
                 .asset_id(token_1())
                 .asks(vec![
@@ -659,7 +658,7 @@ mod unauthenticated {
         let response = client.last_trade_price(&request).await?;
 
         let expected = LastTradePriceResponse::builder()
-            .price(dec!(0.12))
+            .price(Decimal!(0.12))
             .side(Side::Buy)
             .build();
 
@@ -689,7 +688,7 @@ mod unauthenticated {
         let expected = vec![
             LastTradesPricesResponse::builder()
                 .token_id(token_1())
-                .price(dec!(0.12))
+                .price(Decimal!(0.12))
                 .side(Side::Buy)
                 .build(),
         ];
@@ -785,15 +784,15 @@ mod unauthenticated {
             .seconds_delay(5)
             .fpmm(address!("0000000000000000000000000000000000abc123"))
             .maker_base_fee(Decimal::ZERO)
-            .taker_base_fee(dec!(0.1))
+            .taker_base_fee(Decimal!(0.1))
             .notifications_enabled(true)
             .neg_risk(false)
             .icon("https://example.com/icon.png")
             .image("https://example.com/image.png")
             .rewards(
                 Rewards::builder()
-                    .min_size(dec!(10.0))
-                    .max_spread(dec!(0.05))
+                    .min_size(Decimal!(10.0))
+                    .max_spread(Decimal!(0.05))
                     .build(),
             )
             .is_50_50_outcome(false)
@@ -801,13 +800,13 @@ mod unauthenticated {
                 Token::builder()
                     .token_id(token_1())
                     .outcome("YES")
-                    .price(dec!(0.55))
+                    .price(Decimal!(0.55))
                     .winner(false)
                     .build(),
                 Token::builder()
                     .token_id(token_2())
                     .outcome("NO")
-                    .price(dec!(0.45))
+                    .price(Decimal!(0.45))
                     .winner(false)
                     .build(),
             ])
@@ -872,12 +871,12 @@ mod unauthenticated {
             )?
         );
         assert_eq!(response.min_tick_size, TickSize::Thousandth);
-        assert_eq!(response.min_order_size, dec!(5));
+        assert_eq!(response.min_order_size, Decimal!(5));
         assert!(!response.neg_risk);
-        assert_eq!(response.maker_base_fee, Some(dec!(1000)));
-        assert_eq!(response.taker_base_fee, Some(dec!(1000)));
+        assert_eq!(response.maker_base_fee, Some(Decimal!(1000)));
+        assert_eq!(response.taker_base_fee, Some(Decimal!(1000)));
         let fd = response.fee_details.as_ref().expect("fd present");
-        assert_eq!(fd.rate, dec!(0.03));
+        assert_eq!(fd.rate, Decimal!(0.03));
         assert_eq!(fd.exponent, 1);
         assert!(fd.taker_only);
 
@@ -990,8 +989,8 @@ mod unauthenticated {
             .image("https://example.com/image.png")
             .rewards(
                 Rewards::builder()
-                    .min_size(dec!(10.0))
-                    .max_spread(dec!(0.05))
+                    .min_size(Decimal!(10.0))
+                    .max_spread(Decimal!(0.05))
                     .build(),
             )
             .is_50_50_outcome(false)
@@ -999,13 +998,13 @@ mod unauthenticated {
                 Token::builder()
                     .token_id(token_1())
                     .outcome("YES")
-                    .price(dec!(0.55))
+                    .price(Decimal!(0.55))
                     .winner(false)
                     .build(),
                 Token::builder()
                     .token_id(token_2())
                     .outcome("NO")
-                    .price(dec!(0.45))
+                    .price(Decimal!(0.45))
                     .winner(false)
                     .build(),
             ])
@@ -1077,20 +1076,20 @@ mod unauthenticated {
                 Token::builder()
                     .token_id(token_1())
                     .outcome("YES")
-                    .price(dec!(0.55))
+                    .price(Decimal!(0.55))
                     .winner(false)
                     .build(),
                 Token::builder()
                     .token_id(token_2())
                     .outcome("NO")
-                    .price(dec!(0.45))
+                    .price(Decimal!(0.45))
                     .winner(false)
                     .build(),
             ])
             .rewards(
                 Rewards::builder()
-                    .min_size(dec!(10.0))
-                    .max_spread(dec!(0.05))
+                    .min_size(Decimal!(10.0))
+                    .max_spread(Decimal!(0.05))
                     .build(),
             )
             .archived(false)
@@ -1164,20 +1163,20 @@ mod unauthenticated {
                 Token::builder()
                     .token_id(token_1())
                     .outcome("YES")
-                    .price(dec!(0.55))
+                    .price(Decimal!(0.55))
                     .winner(false)
                     .build(),
                 Token::builder()
                     .token_id(token_2())
                     .outcome("NO")
-                    .price(dec!(0.45))
+                    .price(Decimal!(0.45))
                     .winner(false)
                     .build(),
             ])
             .rewards(
                 Rewards::builder()
-                    .min_size(dec!(10.0))
-                    .max_spread(dec!(0.05))
+                    .min_size(Decimal!(10.0))
+                    .max_spread(Decimal!(0.05))
                     .build(),
             )
             .archived(false)
@@ -1331,8 +1330,8 @@ mod unauthenticated {
             .image("https://example.com/image.png")
             .rewards(
                 Rewards::builder()
-                    .min_size(dec!(10.0))
-                    .max_spread(dec!(0.05))
+                    .min_size(Decimal!(10.0))
+                    .max_spread(Decimal!(0.05))
                     .build(),
             )
             .is_50_50_outcome(false)
@@ -1340,13 +1339,13 @@ mod unauthenticated {
                 Token::builder()
                     .token_id(token_1())
                     .outcome("YES")
-                    .price(dec!(0.55))
+                    .price(Decimal!(0.55))
                     .winner(false)
                     .build(),
                 Token::builder()
                     .token_id(token_2())
                     .outcome("NO")
-                    .price(dec!(0.45))
+                    .price(Decimal!(0.45))
                     .winner(false)
                     .build(),
             ])
@@ -1567,8 +1566,8 @@ mod authenticated {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .price(dec!(0.512))
-            .size(Decimal::ONE_HUNDRED)
+            .price(Decimal!(0.512))
+            .size(Decimal!(100))
             .side(Side::Buy)
             .build()
             .await?;
@@ -1747,9 +1746,9 @@ mod authenticated {
             ))
             .asset_id(token_1())
             .side(Side::Buy)
-            .original_size(dec!(10.0))
-            .size_matched(dec!(2.5))
-            .price(dec!(0.45))
+            .original_size(Decimal!(10.0))
+            .size_matched(Decimal!(2.5))
+            .price(Decimal!(0.45))
             .associate_trades(vec!["0xtradehash1".into(), "0xtradehash2".into()])
             .outcome("YES")
             .created_at("2024-01-15T12:34:56Z".parse().unwrap())
@@ -1819,9 +1818,9 @@ mod authenticated {
             ))
             .asset_id(token_1())
             .side(Side::Buy)
-            .original_size(dec!(10.0))
-            .size_matched(dec!(2.5))
-            .price(dec!(0.45))
+            .original_size(Decimal!(10.0))
+            .size_matched(Decimal!(2.5))
+            .price(Decimal!(0.45))
             .associate_trades(vec!["0xtradehash1".into(), "0xtradehash2".into()])
             .outcome("YES")
             .created_at("2024-01-15T12:34:56Z".parse().unwrap())
@@ -2093,9 +2092,9 @@ mod authenticated {
             ))
             .asset_id(token_1())
             .side(Side::Buy)
-            .size(dec!(12.5))
-            .fee_rate_bps(dec!(5))
-            .price(dec!(0.42))
+            .size(Decimal!(12.5))
+            .fee_rate_bps(Decimal!(5))
+            .price(Decimal!(0.42))
             .status(TradeStatusType::Matched)
             .match_time("2024-01-15T12:34:56Z".parse().unwrap())
             .last_update("2024-01-15T12:35:30Z".parse().unwrap())
@@ -2108,9 +2107,9 @@ mod authenticated {
                     .order_id("maker_001")
                     .owner(Uuid::max())
                     .maker_address(address!("0x4444444444444444444444444444444444444444"))
-                    .matched_amount(dec!(5.0))
-                    .price(dec!(0.42))
-                    .fee_rate_bps(dec!(5))
+                    .matched_amount(Decimal!(5.0))
+                    .price(Decimal!(0.42))
+                    .fee_rate_bps(Decimal!(5))
                     .asset_id(token_1())
                     .outcome("YES")
                     .side(Side::Sell)
@@ -2119,9 +2118,9 @@ mod authenticated {
                     .order_id("maker_002")
                     .owner(Uuid::max())
                     .maker_address(address!("0x6666666666666666666666666666666666666666"))
-                    .matched_amount(dec!(7.5))
-                    .price(dec!(0.42))
-                    .fee_rate_bps(dec!(5))
+                    .matched_amount(Decimal!(7.5))
+                    .price(Decimal!(0.42))
+                    .fee_rate_bps(Decimal!(5))
                     .asset_id(token_1())
                     .outcome("YES")
                     .side(Side::Sell)
@@ -2206,13 +2205,13 @@ mod authenticated {
                         "5f65177b394277fd294cd75650044e32ba009a95022d88a0c1d565897d72f8f1"
                     ))
                     .market_slug("will-trump-win-the-2024-iowa-caucus")
-                    .matched_size(dec!(20))
+                    .matched_size(Decimal!(20))
                     .order_id("0x2ae21876d2702d8b71308d0999062db9625a691ce4593c5f10230eeeff945e70")
-                    .original_size(dec!(2.4))
+                    .original_size(Decimal!(2.4))
                     .outcome("YES")
                     .outcome_index(0)
                     .owner(Uuid::from_str("b349bff6-7af8-0470-ed25-22a2a5e1c154").unwrap())
-                    .price(dec!(0.12))
+                    .price(Decimal!(0.12))
                     .question("Will Trump win the 2024 Iowa Caucus?")
                     .remaining_size(Decimal::ZERO)
                     .series_slug("")
@@ -2420,7 +2419,7 @@ mod authenticated {
                     .asset_address(address!("0x0000000000000000000000000000000000000001"))
                     .maker_address(address!("0x0000000000000000000000000000000000000002"))
                     .earnings(Decimal::ONE)
-                    .asset_rate(dec!(0.1))
+                    .asset_rate(Decimal!(0.1))
                     .build(),
             ])
             .build();
@@ -2464,7 +2463,7 @@ mod authenticated {
                 .asset_address(address!("0x0000000000000000000000000000000000000001"))
                 .maker_address(address!("0x0000000000000000000000000000000000000002"))
                 .earnings(Decimal::ONE)
-                .asset_rate(dec!(0.1))
+                .asset_rate(Decimal!(0.1))
                 .build(),
         ];
 
@@ -2570,20 +2569,20 @@ mod authenticated {
                 .market_slug("btc-above-50k-2025-12-31")
                 .event_slug("btc-above-50k-2025")
                 .image("https://example.com/markets/btc.png")
-                .rewards_max_spread(dec!(0.05))
-                .rewards_min_size(dec!(10.0))
-                .market_competitiveness(dec!(0.80))
+                .rewards_max_spread(Decimal!(0.05))
+                .rewards_min_size(Decimal!(10.0))
+                .market_competitiveness(Decimal!(0.80))
                 .tokens(vec![
                     Token::builder()
                         .token_id(token_1())
                         .outcome("YES")
-                        .price(dec!(0.55))
+                        .price(Decimal!(0.55))
                         .winner(true)
                         .build(),
                     Token::builder()
                         .token_id(token_2())
                         .outcome("NO")
-                        .price(dec!(0.45))
+                        .price(Decimal!(0.45))
                         .winner(false)
                         .build(),
                 ])
@@ -2592,29 +2591,29 @@ mod authenticated {
                         .asset_address(address!("0x0000000000000000000000000000000000000001"))
                         .start_date("2024-01-01".parse().unwrap())
                         .end_date("2024-12-31".parse().unwrap())
-                        .rate_per_day(dec!(1.5))
-                        .total_rewards(dec!(500.0))
+                        .rate_per_day(Decimal!(1.5))
+                        .total_rewards(Decimal!(500.0))
                         .build(),
                     RewardsConfig::builder()
                         .asset_address(address!("0x0000000000000000000000000000000000000002"))
                         .start_date("2024-06-01".parse().unwrap())
                         .end_date("2024-12-31".parse().unwrap())
-                        .rate_per_day(dec!(0.75))
-                        .total_rewards(dec!(250.0))
+                        .rate_per_day(Decimal!(0.75))
+                        .total_rewards(Decimal!(250.0))
                         .build(),
                 ])
                 .maker_address(address!("0x1111111111111111111111111111111111111111"))
-                .earning_percentage(dec!(0.25))
+                .earning_percentage(Decimal!(0.25))
                 .earnings(vec![
                     Earning::builder()
                         .asset_address(address!("0x0000000000000000000000000000000000000001"))
-                        .earnings(dec!(125.0))
-                        .asset_rate(dec!(1.5))
+                        .earnings(Decimal!(125.0))
+                        .asset_rate(Decimal!(1.5))
                         .build(),
                     Earning::builder()
                         .asset_address(address!("0x0000000000000000000000000000000000000002"))
-                        .earnings(dec!(62.5))
-                        .asset_rate(dec!(0.75))
+                        .earnings(Decimal!(62.5))
+                        .asset_rate(Decimal!(0.75))
                         .build(),
                 ])
                 .build(),
@@ -2700,22 +2699,22 @@ mod authenticated {
             .condition_id(b256!(
                 "000000000000000000000000000000000000000000000000000000c0dabc0123"
             ))
-            .rewards_max_spread(dec!(0.05))
-            .rewards_min_size(dec!(20.0))
+            .rewards_max_spread(Decimal!(0.05))
+            .rewards_min_size(Decimal!(20.0))
             .rewards_config(vec![
                 RewardsConfig::builder()
                     .asset_address(address!("0x0000000000000000000000000000000000000001"))
                     .start_date("2024-01-01".parse().unwrap())
                     .end_date("2024-12-31".parse().unwrap())
-                    .rate_per_day(dec!(2.0))
-                    .total_rewards(dec!(750.0))
+                    .rate_per_day(Decimal!(2.0))
+                    .total_rewards(Decimal!(750.0))
                     .build(),
                 RewardsConfig::builder()
                     .asset_address(address!("0x0000000000000000000000000000000000000002"))
                     .start_date("2024-06-01".parse().unwrap())
                     .end_date("2024-12-31".parse().unwrap())
-                    .rate_per_day(dec!(1.0))
-                    .total_rewards(dec!(300.0))
+                    .rate_per_day(Decimal!(1.0))
+                    .total_rewards(Decimal!(300.0))
                     .build(),
             ])
             .build();
@@ -2809,20 +2808,20 @@ mod authenticated {
             .market_slug("btc-100k-2025")
             .event_slug("btc-2025")
             .image("https://example.com/markets/btc.png")
-            .rewards_max_spread(dec!(0.05))
-            .rewards_min_size(dec!(15.0))
-            .market_competitiveness(dec!(0.05))
+            .rewards_max_spread(Decimal!(0.05))
+            .rewards_min_size(Decimal!(15.0))
+            .market_competitiveness(Decimal!(0.05))
             .tokens(vec![
                 Token::builder()
                     .token_id(token_1())
                     .outcome("YES")
-                    .price(dec!(0.58))
+                    .price(Decimal!(0.58))
                     .winner(true)
                     .build(),
                 Token::builder()
                     .token_id(token_2())
                     .outcome("NO")
-                    .price(dec!(0.42))
+                    .price(Decimal!(0.42))
                     .winner(false)
                     .build(),
             ])
@@ -2832,18 +2831,18 @@ mod authenticated {
                     .asset_address(address!("0x0000000000000000000000000000000000000001"))
                     .start_date("2024-01-01".parse()?)
                     .end_date("2024-12-31".parse()?)
-                    .rate_per_day(dec!(1.25))
-                    .total_rewards(dec!(400.0))
-                    .total_days(Decimal::TEN)
+                    .rate_per_day(Decimal!(1.25))
+                    .total_rewards(Decimal!(400.0))
+                    .total_days(Decimal!(10))
                     .build(),
                 MarketRewardsConfig::builder()
                     .id("2")
                     .asset_address(address!("0x0000000000000000000000000000000000000002"))
                     .start_date("2024-06-01".parse()?)
                     .end_date("2024-12-31".parse()?)
-                    .rate_per_day(dec!(0.80))
-                    .total_rewards(dec!(200.0))
-                    .total_days(Decimal::TEN)
+                    .rate_per_day(Decimal!(0.80))
+                    .total_rewards(Decimal!(200.0))
+                    .total_days(Decimal!(10))
                     .build(),
             ])
             .build();
@@ -3088,9 +3087,9 @@ mod builder_authenticated {
             ))
             .asset_id(token_1())
             .side(Side::Buy)
-            .size(dec!(10.0))
-            .size_usdc(dec!(100.0))
-            .price(dec!(0.45))
+            .size(Decimal!(10.0))
+            .size_usdc(Decimal!(100.0))
+            .price(Decimal!(0.45))
             .status(TradeStatusType::Matched)
             .outcome("YES")
             .outcome_index(0)
@@ -3101,8 +3100,8 @@ mod builder_authenticated {
             ))
             .match_time("2025-09-22T22:19:57Z".parse()?)
             .bucket_index(3)
-            .fee(dec!(0.1))
-            .fee_usdc(dec!(1.0))
+            .fee(Decimal!(0.1))
+            .fee_usdc(Decimal!(1.0))
             .err_msg("partial fill due to liquidity")
             .created_at("2024-01-15T12:30:00Z".parse()?)
             .updated_at("2024-01-15T12:35:00Z".parse()?)

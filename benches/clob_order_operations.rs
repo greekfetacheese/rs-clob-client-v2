@@ -16,7 +16,6 @@ use polymarket_client_sdk_v2::auth::state::Authenticated;
 use polymarket_client_sdk_v2::clob::Client;
 use polymarket_client_sdk_v2::clob::types::{OrderType, Side, TickSize};
 use polymarket_client_sdk_v2::types::{Decimal, U256};
-use rust_decimal_macros::dec;
 
 const TOKEN_ID: &str =
     "15871154585880608648532107628464183779895785213830018178010423617714102767076";
@@ -62,8 +61,8 @@ fn bench_order_building(c: &mut Criterion) {
                     .order_type(OrderType::GTC)
                     .token_id(token_id)
                     .side(Side::Buy)
-                    .price(dec!(0.50))
-                    .size(Decimal::ONE_HUNDRED);
+                    .price(Decimal!(0.50))
+                    .size(Decimal!(100));
 
                 std::hint::black_box(order_builder.build().await.expect("build succeeds"))
             })
@@ -78,8 +77,8 @@ fn bench_order_building(c: &mut Criterion) {
                     .order_type(OrderType::GTC)
                     .token_id(token_id)
                     .side(Side::Sell)
-                    .price(dec!(0.50))
-                    .size(Decimal::ONE_HUNDRED);
+                    .price(Decimal!(0.50))
+                    .size(Decimal!(100));
 
                 std::hint::black_box(order_builder.build().await.expect("build succeeds"))
             })
@@ -102,8 +101,8 @@ fn bench_order_signing(c: &mut Criterion) {
             .limit_order()
             .token_id(token_id)
             .side(Side::Buy)
-            .price(dec!(0.50))
-            .size(dec!(100.0))
+            .price(Decimal!(0.50))
+            .size(Decimal!(100.0))
             .build()
             .await
             .expect("build succeeds")
@@ -139,8 +138,8 @@ fn bench_order_serializing(c: &mut Criterion) {
             .limit_order()
             .token_id(token_id)
             .side(Side::Buy)
-            .price(dec!(0.50))
-            .size(dec!(100.0))
+            .price(Decimal!(0.50))
+            .size(Decimal!(100.0))
             .build()
             .await
             .expect("build succeeds");

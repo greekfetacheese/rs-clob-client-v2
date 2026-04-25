@@ -545,7 +545,7 @@ pub fn parse_if_interested(
 mod tests {
     use std::str::FromStr as _;
 
-    use rust_decimal_macros::dec;
+    use fixed_num::Dec19x19 as dec;
 
     use super::*;
     use crate::types::b256;
@@ -612,7 +612,7 @@ mod tests {
 
                 assert_eq!(changes.asset_id, U256::from_str("106585164761922456203746651621390029417453862034640469075081961934906147433548").unwrap());
                 assert_eq!(changes.side, Side::Buy);
-                assert_eq!(changes.size.unwrap(), Decimal::TEN);
+                assert_eq!(changes.size.unwrap(), Decimal!(10));
             }
             _ => panic!("Expected PriceChange message"),
         }

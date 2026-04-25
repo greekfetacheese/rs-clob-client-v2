@@ -15,7 +15,6 @@ use polymarket_client_sdk_v2::clob::types::response::OrderSummary;
 use polymarket_client_sdk_v2::clob::types::{Amount, OrderType, Side, SignatureType, TickSize};
 use polymarket_client_sdk_v2::types::{Address, Decimal, address};
 use reqwest::StatusCode;
-use rust_decimal_macros::dec;
 
 use crate::common::{
     USDC_DECIMALS, create_authenticated, ensure_requirements, to_decimal, token_1, token_2,
@@ -61,8 +60,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .size(Decimal::ONE_HUNDRED)
-            .price(dec!(0.1))
+            .size(Decimal!(100))
+            .price(Decimal!(0.1))
             .side(Side::Buy)
             .build()
             .await?;
@@ -70,8 +69,8 @@ mod lifecycle {
         let signable_order_2 = client
             .limit_order()
             .token_id(token_2())
-            .price(dec!(0.512))
-            .size(Decimal::ONE_HUNDRED)
+            .price(Decimal!(0.512))
+            .size(Decimal!(100))
             .side(Side::Buy)
             .build()
             .await?;
@@ -113,8 +112,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .size(Decimal::ONE_HUNDRED)
-            .price(dec!(0.1))
+            .size(Decimal!(100))
+            .price(Decimal!(0.1))
             .side(Side::Buy)
             .build()
             .await?;
@@ -136,8 +135,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .size(Decimal::ONE_HUNDRED)
-            .price(dec!(0.1))
+            .size(Decimal!(100))
+            .price(Decimal!(0.1))
             .side(Side::Buy)
             .build()
             .await?;
@@ -185,8 +184,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .size(Decimal::ONE_HUNDRED)
-            .price(dec!(0.1))
+            .size(Decimal!(100))
+            .price(Decimal!(0.1))
             .side(Side::Buy)
             .build()
             .await?;
@@ -205,8 +204,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_2())
-            .size(Decimal::TEN)
-            .price(dec!(0.2))
+            .size(Decimal!(10))
+            .price(Decimal!(0.2))
             .side(Side::Sell)
             .build()
             .await?;
@@ -256,8 +255,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .size(Decimal::ONE_HUNDRED)
-            .price(dec!(0.1))
+            .size(Decimal!(100))
+            .price(Decimal!(0.1))
             .side(Side::Buy)
             .build()
             .await?;
@@ -282,8 +281,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_2())
-            .size(Decimal::TEN)
-            .price(dec!(0.2))
+            .size(Decimal!(10))
+            .price(Decimal!(0.2))
             .side(Side::Sell)
             .build()
             .await?;
@@ -381,8 +380,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .size(Decimal::ONE_HUNDRED)
-            .price(dec!(0.5))
+            .size(Decimal!(100))
+            .price(Decimal!(0.5))
             .side(Side::Buy)
             .build()
             .await?;
@@ -421,8 +420,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .size(Decimal::ONE_HUNDRED)
-            .price(dec!(0.5))
+            .size(Decimal!(100))
+            .price(Decimal!(0.5))
             .side(Side::Buy)
             .build()
             .await?;
@@ -472,8 +471,8 @@ mod lifecycle {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .size(Decimal::ONE_HUNDRED)
-            .price(dec!(0.5))
+            .size(Decimal!(100))
+            .price(Decimal!(0.5))
             .side(Side::Buy)
             .build()
             .await?;
@@ -545,8 +544,8 @@ mod limit {
         let err = client
             .limit_order()
             .token_id(token_1())
-            .price(dec!(0.5))
-            .size(dec!(21.04))
+            .price(Decimal!(0.5))
+            .size(Decimal!(21.04))
             .side(Side::Buy)
             .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
             .build()
@@ -569,8 +568,8 @@ mod limit {
         let err = client
             .limit_order()
             .token_id(token_1())
-            .price(dec!(0.5))
-            .size(dec!(21.04))
+            .price(Decimal!(0.5))
+            .size(Decimal!(21.04))
             .side(Side::Buy)
             .order_type(OrderType::FOK)
             .post_only(true)
@@ -594,7 +593,7 @@ mod limit {
         let err = client
             .limit_order()
             .token_id(token_1())
-            .size(dec!(21.04))
+            .size(Decimal!(21.04))
             .side(Side::Buy)
             .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
             .build()
@@ -607,7 +606,7 @@ mod limit {
         let err = client
             .limit_order()
             .token_id(token_1())
-            .price(dec!(0.5))
+            .price(Decimal!(0.5))
             .side(Side::Buy)
             .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
             .build()
@@ -630,8 +629,8 @@ mod limit {
         let err = client
             .limit_order()
             .token_id(token_1())
-            .price(dec!(0.005))
-            .size(dec!(21.04))
+            .price(Decimal!(0.005))
+            .size(Decimal!(21.04))
             .side(Side::Buy)
             .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
             .build()
@@ -657,8 +656,8 @@ mod limit {
         let err = client
             .limit_order()
             .token_id(token_1())
-            .price(dec!(-0.5))
-            .size(dec!(21.04))
+            .price(-Decimal!(0.5))
+            .size(Decimal!(21.04))
             .side(Side::Buy)
             .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
             .build()
@@ -671,8 +670,8 @@ mod limit {
         let err = client
             .limit_order()
             .token_id(token_1())
-            .price(dec!(0.5))
-            .size(dec!(-21.04))
+            .price(Decimal!(0.5))
+            .size(-Decimal!(21.04))
             .side(Side::Buy)
             .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
             .build()
@@ -698,8 +697,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(21.04))
+                .price(Decimal!(0.5))
+                .size(Decimal!(21.04))
                 .side(Side::Buy)
                 .order_type(OrderType::GTD)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
@@ -710,7 +709,7 @@ mod limit {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-            assert_eq!(price, dec!(0.50));
+            assert_eq!(price, Decimal!(0.50));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -739,8 +738,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.56))
-                .size(dec!(21.04))
+                .price(Decimal!(0.56))
+                .size(Decimal!(21.04))
                 .side(Side::Buy)
                 .order_type(OrderType::GTD)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
@@ -751,7 +750,7 @@ mod limit {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-            assert_eq!(price, dec!(0.56));
+            assert_eq!(price, Decimal!(0.56));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -780,8 +779,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.056))
-                .size(dec!(21.04))
+                .price(Decimal!(0.056))
+                .size(Decimal!(21.04))
                 .side(Side::Buy)
                 .order_type(OrderType::GTD)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
@@ -792,7 +791,7 @@ mod limit {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-            assert_eq!(price, dec!(0.056));
+            assert_eq!(price, Decimal!(0.056));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -821,8 +820,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.0056))
-                .size(dec!(21.04))
+                .price(Decimal!(0.0056))
+                .size(Decimal!(21.04))
                 .side(Side::Buy)
                 .order_type(OrderType::GTD)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
@@ -833,7 +832,7 @@ mod limit {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-            assert_eq!(price, dec!(0.0056));
+            assert_eq!(price, Decimal!(0.0056));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -862,8 +861,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.24))
-                .size(dec!(15))
+                .price(Decimal!(0.24))
+                .size(Decimal!(15))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -884,8 +883,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.82))
-                .size(dec!(101))
+                .price(Decimal!(0.82))
+                .size(Decimal!(101))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -906,8 +905,8 @@ mod limit {
             let err = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.78))
-                .size(dec!(12.8205))
+                .price(Decimal!(0.78))
+                .size(Decimal!(12.8205))
                 .side(Side::Buy)
                 .build()
                 .await
@@ -932,8 +931,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.58))
-                .size(dec!(18233.33))
+                .price(Decimal!(0.58))
+                .size(Decimal!(18233.33))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -964,8 +963,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(21.04))
+                .price(Decimal!(0.5))
+                .size(Decimal!(21.04))
                 .side(Side::Sell)
                 .order_type(OrderType::GTD)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
@@ -976,7 +975,7 @@ mod limit {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-            assert_eq!(price, dec!(0.50));
+            assert_eq!(price, Decimal!(0.50));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -1005,8 +1004,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.56))
-                .size(dec!(21.04))
+                .price(Decimal!(0.56))
+                .size(Decimal!(21.04))
                 .side(Side::Sell)
                 .order_type(OrderType::GTD)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
@@ -1017,7 +1016,7 @@ mod limit {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-            assert_eq!(price, dec!(0.56));
+            assert_eq!(price, Decimal!(0.56));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -1046,8 +1045,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.056))
-                .size(dec!(21.04))
+                .price(Decimal!(0.056))
+                .size(Decimal!(21.04))
                 .side(Side::Sell)
                 .order_type(OrderType::GTD)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
@@ -1058,7 +1057,7 @@ mod limit {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-            assert_eq!(price, dec!(0.056));
+            assert_eq!(price, Decimal!(0.056));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -1087,8 +1086,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.0056))
-                .size(dec!(21.04))
+                .price(Decimal!(0.0056))
+                .size(Decimal!(21.04))
                 .side(Side::Sell)
                 .order_type(OrderType::GTD)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
@@ -1099,7 +1098,7 @@ mod limit {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-            assert_eq!(price, dec!(0.0056));
+            assert_eq!(price, Decimal!(0.0056));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -1128,8 +1127,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.24))
-                .size(dec!(15))
+                .price(Decimal!(0.24))
+                .size(Decimal!(15))
                 .side(Side::Sell)
                 .build()
                 .await?;
@@ -1150,8 +1149,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.82))
-                .size(dec!(101))
+                .price(Decimal!(0.82))
+                .size(Decimal!(101))
                 .side(Side::Sell)
                 .build()
                 .await?;
@@ -1172,8 +1171,8 @@ mod limit {
             let err = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.78))
-                .size(dec!(12.8205))
+                .price(Decimal!(0.78))
+                .size(Decimal!(12.8205))
                 .side(Side::Sell)
                 .build()
                 .await
@@ -1199,8 +1198,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.39))
-                .size(dec!(2435.89))
+                .price(Decimal!(0.39))
+                .size(Decimal!(2435.89))
                 .side(Side::Sell)
                 .build()
                 .await?;
@@ -1224,8 +1223,8 @@ mod limit {
             let signable_order = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.43))
-                .size(dec!(19.1))
+                .price(Decimal!(0.43))
+                .size(Decimal!(19.1))
                 .side(Side::Sell)
                 .build()
                 .await?;
@@ -1253,8 +1252,8 @@ mod limit {
         let signable_order = client
             .limit_order()
             .token_id(token_1())
-            .price(dec!(0.512))
-            .size(Decimal::ONE_HUNDRED)
+            .price(Decimal!(0.512))
+            .size(Decimal!(100))
             .side(Side::Buy)
             .build()
             .await?;
@@ -1275,8 +1274,8 @@ mod limit {
         let signable_order = client
             .limit_order()
             .token_id(token_2())
-            .price(dec!(0.78))
-            .size(dec!(12.82))
+            .price(Decimal!(0.78))
+            .size(Decimal!(12.82))
             .side(Side::Buy)
             .build()
             .await?;
@@ -1298,8 +1297,8 @@ mod limit {
             .limit_order()
             .token_id(token_2())
             .order_type(OrderType::GTC)
-            .price(dec!(0.78))
-            .size(dec!(12.82))
+            .price(Decimal!(0.78))
+            .size(Decimal!(12.82))
             .side(Side::Sell)
             .build()
             .await?;
@@ -1358,6 +1357,8 @@ mod market {
     }
 
     mod buy {
+        use fixed_num::ops::RoundTo;
+
         use super::*;
 
         mod fok {
@@ -1375,7 +1376,7 @@ mod market {
                 let err = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .order_type(OrderType::FOK)
                     .build()
@@ -1402,12 +1403,12 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1415,7 +1416,7 @@ mod market {
                 let err = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .order_type(OrderType::FOK)
                     .build()
@@ -1442,16 +1443,16 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1459,7 +1460,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .order_type(OrderType::FOK)
                     .build()
@@ -1469,7 +1470,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(signable_order.order().maker, client.address());
                 assert_eq!(signable_order.order().signer, client.address());
@@ -1504,16 +1505,16 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(dec!(200))
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(200))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1521,7 +1522,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .order_type(OrderType::FOK)
                     .build()
@@ -1531,7 +1532,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.4));
+                assert_eq!(price, Decimal!(0.4));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 USDC
                 assert_eq!(taker_amount, U256::from(250_000_000)); // 250 `token_1()` tokens
@@ -1550,16 +1551,16 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(dec!(120))
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(120))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.2))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.2))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1567,7 +1568,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .order_type(OrderType::FOK)
                     .build()
@@ -1577,7 +1578,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 USDC
                 assert_eq!(taker_amount, U256::from(200_000_000)); // 200 `token_1()` tokens
@@ -1596,16 +1597,16 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(dec!(200))
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(200))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1613,7 +1614,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .order_type(OrderType::FOK)
                     .build()
@@ -1623,7 +1624,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 USDC
                 assert_eq!(taker_amount, U256::from(200_000_000)); // 200 `token_1()` tokens
@@ -1645,7 +1646,7 @@ mod market {
                 let err = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .build()
                     .await
@@ -1671,12 +1672,12 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1684,7 +1685,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .build()
                     .await?;
@@ -1693,7 +1694,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(signable_order.order().maker, client.address());
                 assert_eq!(signable_order.order().signer, client.address());
@@ -1728,16 +1729,16 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1745,7 +1746,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .build()
                     .await?;
@@ -1754,7 +1755,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 USDC
                 assert_eq!(taker_amount, U256::from(200_000_000)); // 200 `token_1()` tokens
@@ -1773,16 +1774,16 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(dec!(200))
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(200))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1790,7 +1791,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .build()
                     .await?;
@@ -1799,7 +1800,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.4));
+                assert_eq!(price, Decimal!(0.4));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 USDC
                 assert_eq!(taker_amount, U256::from(250_000_000)); // 250 `token_1()` tokens
@@ -1818,16 +1819,16 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(dec!(120))
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(120))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1835,7 +1836,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .build()
                     .await?;
@@ -1844,7 +1845,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 USDC
                 assert_eq!(taker_amount, U256::from(200_000_000)); // 200 `token_1()` tokens
@@ -1863,16 +1864,16 @@ mod market {
                     &[],
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(dec!(200))
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(200))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                 );
@@ -1880,7 +1881,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::usdc(Decimal!(100))?)
                     .side(Side::Buy)
                     .build()
                     .await?;
@@ -1889,7 +1890,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 USDC
                 assert_eq!(taker_amount, U256::from(200_000_000)); // 200 `token_1()` tokens
@@ -1910,15 +1911,15 @@ mod market {
                 token_1(),
                 &[],
                 &[OrderSummary::builder()
-                    .price(dec!(0.5))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.5))
+                    .size(Decimal!(100))
                     .build()],
             );
 
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::usdc(Decimal!(100))?)
                 .side(Side::Buy)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
                 .build()
@@ -1928,7 +1929,7 @@ mod market {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(maker_amount) / to_decimal(taker_amount);
-            assert_eq!(price, dec!(0.50));
+            assert_eq!(price, Decimal!(0.50));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -1959,15 +1960,15 @@ mod market {
                 token_1(),
                 &[],
                 &[OrderSummary::builder()
-                    .price(dec!(0.56))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.56))
+                    .size(Decimal!(100))
                     .build()],
             );
 
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::usdc(Decimal!(100))?)
                 .side(Side::Buy)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
                 .build()
@@ -1977,8 +1978,8 @@ mod market {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = (to_decimal(maker_amount) / to_decimal(taker_amount))
-                .trunc_with_scale(USDC_DECIMALS);
-            assert_eq!(price, dec!(0.56));
+                .round_to(USDC_DECIMALS as i64);
+            assert_eq!(price, Decimal!(0.56));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -2009,15 +2010,15 @@ mod market {
                 token_1(),
                 &[],
                 &[OrderSummary::builder()
-                    .price(dec!(0.056))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.056))
+                    .size(Decimal!(100))
                     .build()],
             );
 
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::usdc(Decimal!(100))?)
                 .side(Side::Buy)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
                 .build()
@@ -2027,8 +2028,8 @@ mod market {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = (to_decimal(maker_amount) / to_decimal(taker_amount))
-                .trunc_with_scale(USDC_DECIMALS);
-            assert_eq!(price, dec!(0.056));
+                .round_to(USDC_DECIMALS as i64);
+            assert_eq!(price, Decimal!(0.056));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -2062,15 +2063,15 @@ mod market {
                 token_1(),
                 &[],
                 &[OrderSummary::builder()
-                    .price(dec!(0.0056))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.0056))
+                    .size(Decimal!(100))
                     .build()],
             );
 
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::usdc(Decimal!(100))?)
                 .side(Side::Buy)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
                 .build()
@@ -2080,8 +2081,8 @@ mod market {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = (to_decimal(maker_amount) / to_decimal(taker_amount))
-                .trunc_with_scale(USDC_DECIMALS);
-            assert_eq!(price, dec!(0.0056));
+                .round_to(USDC_DECIMALS as i64);
+            assert_eq!(price, Decimal!(0.0056));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -2113,7 +2114,7 @@ mod market {
             let err = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::shares(Decimal!(100))?)
                 .side(Side::Buy)
                 .order_type(OrderType::FOK)
                 .build()
@@ -2143,15 +2144,15 @@ mod market {
                 token_1(),
                 &[],
                 &[OrderSummary::builder()
-                    .price(dec!(0.5))
-                    .size(dec!(50))
+                    .price(Decimal!(0.5))
+                    .size(Decimal!(50))
                     .build()],
             );
 
             let err = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::shares(Decimal!(100))?)
                 .side(Side::Buy)
                 .order_type(OrderType::FOK)
                 .build()
@@ -2182,12 +2183,12 @@ mod market {
                 &[],
                 &[
                     OrderSummary::builder()
-                        .price(dec!(0.5))
-                        .size(dec!(100))
+                        .price(Decimal!(0.5))
+                        .size(Decimal!(100))
                         .build(),
                     OrderSummary::builder()
-                        .price(dec!(0.4))
-                        .size(dec!(300))
+                        .price(Decimal!(0.4))
+                        .size(Decimal!(300))
                         .build(),
                 ],
             );
@@ -2195,7 +2196,7 @@ mod market {
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(dec!(250))?)
+                .amount(Amount::shares(Decimal!(250))?)
                 .side(Side::Buy)
                 .order_type(OrderType::FOK)
                 .build()
@@ -2219,12 +2220,12 @@ mod market {
                 &[],
                 &[
                     OrderSummary::builder()
-                        .price(dec!(0.5))
-                        .size(dec!(100))
+                        .price(Decimal!(0.5))
+                        .size(Decimal!(100))
                         .build(),
                     OrderSummary::builder()
-                        .price(dec!(0.4))
-                        .size(dec!(300))
+                        .price(Decimal!(0.4))
+                        .size(Decimal!(300))
                         .build(),
                 ],
             );
@@ -2232,9 +2233,9 @@ mod market {
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(dec!(250))?)
+                .amount(Amount::shares(Decimal!(250))?)
                 .side(Side::Buy)
-                .price(dec!(0.5))
+                .price(Decimal!(0.5))
                 .order_type(OrderType::FOK)
                 .build()
                 .await?;
@@ -2247,6 +2248,8 @@ mod market {
     }
 
     mod sell {
+        use fixed_num::ops::RoundTo;
+
         use super::*;
 
         mod fok {
@@ -2262,7 +2265,7 @@ mod market {
                 let err = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .order_type(OrderType::FOK)
                     .build()
@@ -2288,12 +2291,12 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::TEN)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(10))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::TEN)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(10))
                             .build(),
                     ],
                     &[],
@@ -2302,7 +2305,7 @@ mod market {
                 let err = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .order_type(OrderType::FOK)
                     .build()
@@ -2328,16 +2331,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                     &[],
@@ -2346,7 +2349,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .order_type(OrderType::FOK)
                     .build()
@@ -2356,7 +2359,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(signable_order.order().maker, client.address());
                 assert_eq!(signable_order.order().signer, client.address());
@@ -2390,16 +2393,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(dec!(300))
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(300))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::TEN)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(10))
                             .build(),
                     ],
                     &[],
@@ -2408,7 +2411,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .order_type(OrderType::FOK)
                     .build()
@@ -2418,7 +2421,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.4));
+                assert_eq!(price, Decimal!(0.4));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(40_000_000)); // 40 USDC
@@ -2436,16 +2439,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(dec!(200))
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(200))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::TEN)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(10))
                             .build(),
                     ],
                     &[],
@@ -2454,7 +2457,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(dec!(200))?)
+                    .amount(Amount::shares(Decimal!(200))?)
                     .side(Side::Sell)
                     .order_type(OrderType::FOK)
                     .build()
@@ -2464,7 +2467,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.4));
+                assert_eq!(price, Decimal!(0.4));
 
                 assert_eq!(maker_amount, U256::from(200_000_000)); // 200 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(80_000_000)); // 80 USDC
@@ -2482,16 +2485,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(dec!(300))
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(300))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                     &[],
@@ -2500,7 +2503,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(dec!(300))?)
+                    .amount(Amount::shares(Decimal!(300))?)
                     .side(Side::Sell)
                     .order_type(OrderType::FOK)
                     .build()
@@ -2510,7 +2513,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.3));
+                assert_eq!(price, Decimal!(0.3));
 
                 assert_eq!(maker_amount, U256::from(300_000_000)); // 300 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(90_000_000)); // 90 USDC
@@ -2528,16 +2531,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(dec!(334))
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(334))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                     &[],
@@ -2546,7 +2549,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(dec!(300))?)
+                    .amount(Amount::shares(Decimal!(300))?)
                     .side(Side::Sell)
                     .order_type(OrderType::FOK)
                     .build()
@@ -2556,7 +2559,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.3));
+                assert_eq!(price, Decimal!(0.3));
 
                 assert_eq!(maker_amount, U256::from(300_000_000)); // 300 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(90_000_000)); // 90 USDC
@@ -2578,7 +2581,7 @@ mod market {
                 let err = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .build()
                     .await
@@ -2603,12 +2606,12 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::TEN)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(10))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::TEN)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(10))
                             .build(),
                     ],
                     &[],
@@ -2617,7 +2620,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .build()
                     .await?;
@@ -2626,7 +2629,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.4));
+                assert_eq!(price, Decimal!(0.4));
 
                 assert_eq!(signable_order.order().maker, client.address());
                 assert_eq!(signable_order.order().signer, client.address());
@@ -2660,16 +2663,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                     &[],
@@ -2678,7 +2681,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .build()
                     .await?;
@@ -2687,7 +2690,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(50_000_000)); // 50 USDC
@@ -2705,16 +2708,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(dec!(300))
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(300))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::TEN)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(10))
                             .build(),
                     ],
                     &[],
@@ -2723,7 +2726,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .build()
                     .await?;
@@ -2732,7 +2735,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.4));
+                assert_eq!(price, Decimal!(0.4));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(40_000_000)); // 40 USDC
@@ -2750,16 +2753,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(dec!(200))
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(200))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::TEN)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(10))
                             .build(),
                     ],
                     &[],
@@ -2768,7 +2771,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(dec!(200))?)
+                    .amount(Amount::shares(Decimal!(200))?)
                     .side(Side::Sell)
                     .build()
                     .await?;
@@ -2777,7 +2780,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.4));
+                assert_eq!(price, Decimal!(0.4));
 
                 assert_eq!(maker_amount, U256::from(200_000_000)); // 200 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(80_000_000)); // 80 USDC
@@ -2795,16 +2798,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(dec!(300))
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(300))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                     &[],
@@ -2813,7 +2816,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                    .amount(Amount::shares(Decimal!(100))?)
                     .side(Side::Sell)
                     .build()
                     .await?;
@@ -2822,7 +2825,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.5));
+                assert_eq!(price, Decimal!(0.5));
 
                 assert_eq!(maker_amount, U256::from(100_000_000)); // 100 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(50_000_000)); // 50 USDC
@@ -2840,16 +2843,16 @@ mod market {
                     token_1(),
                     &[
                         OrderSummary::builder()
-                            .price(dec!(0.3))
-                            .size(dec!(334))
+                            .price(Decimal!(0.3))
+                            .size(Decimal!(334))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.4))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.4))
+                            .size(Decimal!(100))
                             .build(),
                         OrderSummary::builder()
-                            .price(dec!(0.5))
-                            .size(Decimal::ONE_HUNDRED)
+                            .price(Decimal!(0.5))
+                            .size(Decimal!(100))
                             .build(),
                     ],
                     &[],
@@ -2858,7 +2861,7 @@ mod market {
                 let signable_order = client
                     .market_order()
                     .token_id(token_1())
-                    .amount(Amount::shares(dec!(300))?)
+                    .amount(Amount::shares(Decimal!(300))?)
                     .side(Side::Sell)
                     .build()
                     .await?;
@@ -2867,7 +2870,7 @@ mod market {
                 let taker_amount = signable_order.order().takerAmount;
 
                 let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-                assert_eq!(price, dec!(0.3));
+                assert_eq!(price, Decimal!(0.3));
 
                 assert_eq!(maker_amount, U256::from(300_000_000)); // 300 `token_1()` tokens
                 assert_eq!(taker_amount, U256::from(90_000_000)); // 90 USDC
@@ -2887,8 +2890,8 @@ mod market {
                 &server,
                 token_1(),
                 &[OrderSummary::builder()
-                    .price(dec!(0.5))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.5))
+                    .size(Decimal!(100))
                     .build()],
                 &[],
             );
@@ -2896,7 +2899,7 @@ mod market {
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::shares(Decimal!(100))?)
                 .side(Side::Sell)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
                 .build()
@@ -2906,7 +2909,7 @@ mod market {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = to_decimal(taker_amount) / to_decimal(maker_amount);
-            assert_eq!(price, dec!(0.50));
+            assert_eq!(price, Decimal!(0.50));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -2936,8 +2939,8 @@ mod market {
                 &server,
                 token_1(),
                 &[OrderSummary::builder()
-                    .price(dec!(0.56))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.56))
+                    .size(Decimal!(100))
                     .build()],
                 &[],
             );
@@ -2945,7 +2948,7 @@ mod market {
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::shares(Decimal!(100))?)
                 .side(Side::Sell)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
                 .build()
@@ -2955,8 +2958,8 @@ mod market {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = (to_decimal(taker_amount) / to_decimal(maker_amount))
-                .trunc_with_scale(USDC_DECIMALS);
-            assert_eq!(price, dec!(0.56));
+                .round_to(USDC_DECIMALS as i64);
+            assert_eq!(price, Decimal!(0.56));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -2986,8 +2989,8 @@ mod market {
                 &server,
                 token_1(),
                 &[OrderSummary::builder()
-                    .price(dec!(0.056))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.056))
+                    .size(Decimal!(100))
                     .build()],
                 &[],
             );
@@ -2995,7 +2998,7 @@ mod market {
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::shares(Decimal!(100))?)
                 .side(Side::Sell)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
                 .build()
@@ -3005,8 +3008,8 @@ mod market {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = (to_decimal(taker_amount) / to_decimal(maker_amount))
-                .trunc_with_scale(USDC_DECIMALS);
-            assert_eq!(price, dec!(0.056));
+                .round_to(USDC_DECIMALS as i64);
+            assert_eq!(price, Decimal!(0.056));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -3036,8 +3039,8 @@ mod market {
                 &server,
                 token_1(),
                 &[OrderSummary::builder()
-                    .price(dec!(0.0056))
-                    .size(Decimal::ONE_HUNDRED)
+                    .price(Decimal!(0.0056))
+                    .size(Decimal!(100))
                     .build()],
                 &[],
             );
@@ -3045,7 +3048,7 @@ mod market {
             let signable_order = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::shares(Decimal!(100))?)
                 .side(Side::Sell)
                 .expiration(DateTime::<Utc>::from_str("1970-01-01T13:53:20Z").unwrap())
                 .build()
@@ -3055,8 +3058,8 @@ mod market {
             let taker_amount = signable_order.order().takerAmount;
 
             let price = (to_decimal(taker_amount) / to_decimal(maker_amount))
-                .trunc_with_scale(USDC_DECIMALS);
-            assert_eq!(price, dec!(0.0056));
+                .round_to(USDC_DECIMALS as i64);
+            assert_eq!(price, Decimal!(0.0056));
 
             assert_eq!(signable_order.order().maker, client.address());
             assert_eq!(signable_order.order().signer, client.address());
@@ -3083,7 +3086,7 @@ mod market {
 
         let err = client
             .market_order()
-            .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+            .amount(Amount::usdc(Decimal!(100))?)
             .side(Side::Buy)
             .build()
             .await
@@ -3095,7 +3098,7 @@ mod market {
         let err = client
             .market_order()
             .token_id(token_1())
-            .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+            .amount(Amount::usdc(Decimal!(100))?)
             .build()
             .await
             .unwrap_err();
@@ -3127,7 +3130,7 @@ mod market {
         let err = client
             .market_order()
             .token_id(token_1())
-            .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+            .amount(Amount::shares(Decimal!(100))?)
             .side(Side::Sell)
             .order_type(OrderType::GTC)
             .build()
@@ -3153,7 +3156,7 @@ mod market {
         let err = client
             .market_order()
             .token_id(token_1())
-            .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+            .amount(Amount::usdc(Decimal!(100))?)
             .side(Side::Sell)
             .build()
             .await
@@ -3221,8 +3224,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3255,8 +3258,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.34))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.34))
+                .size(Decimal!(100))
                 .side(Side::Sell)
                 .build()
                 .await?;
@@ -3284,8 +3287,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .metadata(metadata)
                 .builder_code(builder_code)
@@ -3311,8 +3314,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .order_type(OrderType::GTD)
                 .expiration(expiration)
@@ -3336,8 +3339,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .defer_exec(true)
                 .build()
@@ -3377,8 +3380,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3421,8 +3424,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3444,8 +3447,8 @@ mod v2 {
             let err = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.001))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.001))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await
@@ -3460,8 +3463,8 @@ mod v2 {
             let err = client
                 .limit_order()
                 .token_id(token_2())
-                .price(dec!(0.9))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.9))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await;
@@ -3473,7 +3476,7 @@ mod v2 {
                 .limit_order()
                 .token_id(token_1())
                 .price(Decimal::ZERO)
-                .size(Decimal::ONE_HUNDRED)
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await
@@ -3485,8 +3488,8 @@ mod v2 {
             let err = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(-0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(-Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await
@@ -3523,8 +3526,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3546,8 +3549,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3562,8 +3565,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_2())
-                .price(dec!(0.512))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.512))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3586,8 +3589,8 @@ mod v2 {
             let err = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .order_type(OrderType::FOK)
                 .post_only(true)
@@ -3602,8 +3605,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .order_type(OrderType::GTC)
                 .post_only(true)
@@ -3661,12 +3664,12 @@ mod v2 {
 
             let asks = vec![
                 OrderSummary::builder()
-                    .price(dec!(0.4))
-                    .size(dec!(200.0))
+                    .price(Decimal!(0.4))
+                    .size(Decimal!(200.0))
                     .build(),
                 OrderSummary::builder()
-                    .price(dec!(0.5))
-                    .size(dec!(200.0))
+                    .price(Decimal!(0.5))
+                    .size(Decimal!(200.0))
                     .build(),
             ];
 
@@ -3675,7 +3678,7 @@ mod v2 {
             let signable = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::usdc(Decimal!(100))?)
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3701,12 +3704,12 @@ mod v2 {
 
             let bids = vec![
                 OrderSummary::builder()
-                    .price(dec!(0.3))
-                    .size(dec!(200.0))
+                    .price(Decimal!(0.3))
+                    .size(Decimal!(200.0))
                     .build(),
                 OrderSummary::builder()
-                    .price(dec!(0.4))
-                    .size(dec!(200.0))
+                    .price(Decimal!(0.4))
+                    .size(Decimal!(200.0))
                     .build(),
             ];
 
@@ -3715,7 +3718,7 @@ mod v2 {
             let signable = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::shares(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::shares(Decimal!(100))?)
                 .side(Side::Sell)
                 .build()
                 .await?;
@@ -3736,8 +3739,8 @@ mod v2 {
 
             let asks = vec![
                 OrderSummary::builder()
-                    .price(dec!(0.5))
-                    .size(dec!(500.0))
+                    .price(Decimal!(0.5))
+                    .size(Decimal!(500.0))
                     .build(),
             ];
 
@@ -3749,7 +3752,7 @@ mod v2 {
             let signable = client
                 .market_order()
                 .token_id(token_1())
-                .amount(Amount::usdc(Decimal::ONE_HUNDRED)?)
+                .amount(Amount::usdc(Decimal!(100))?)
                 .side(Side::Buy)
                 .metadata(metadata)
                 .builder_code(builder_code)
@@ -3901,8 +3904,8 @@ mod v2 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3953,8 +3956,8 @@ mod v2 {
             let signable1 = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3962,8 +3965,8 @@ mod v2 {
             let signable2 = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.50))
-                .size(Decimal::ONE_HUNDRED)
+                .price(Decimal!(0.50))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -3997,7 +4000,6 @@ mod v1 {
     use polymarket_client_sdk_v2::error::Validation;
     use polymarket_client_sdk_v2::types::{Address, address};
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::{json, to_value};
 
     use super::*;
@@ -4049,8 +4051,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -4079,8 +4081,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_2())
-                .price(dec!(0.25))
-                .size(dec!(200))
+                .price(Decimal!(0.25))
+                .size(Decimal!(200))
                 .side(Side::Sell)
                 .build()
                 .await?;
@@ -4106,8 +4108,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .taker(taker)
                 .nonce(42)
@@ -4131,8 +4133,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .fee_rate_bps(10)
                 .build()
@@ -4154,8 +4156,8 @@ mod v1 {
             let err = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .fee_rate_bps(20) // disagrees with the market's 10 bps
                 .build()
@@ -4223,8 +4225,8 @@ mod v1 {
             let err = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await
@@ -4255,8 +4257,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .order_type(OrderType::GTD)
                 .expiration(exp)
@@ -4332,8 +4334,8 @@ mod v1 {
 
             let asks = vec![
                 OrderSummary::builder()
-                    .price(dec!(0.5))
-                    .size(dec!(1000))
+                    .price(Decimal!(0.5))
+                    .size(Decimal!(1000))
                     .build(),
             ];
             ensure_requirements_for_market_price_v1(&server, token_1(), &[], &asks);
@@ -4342,9 +4344,9 @@ mod v1 {
                 .market_order()
                 .token_id(token_1())
                 .side(Side::Buy)
-                .amount(polymarket_client_sdk_v2::clob::types::Amount::usdc(dec!(
-                    50
-                ))?)
+                .amount(polymarket_client_sdk_v2::clob::types::Amount::usdc(
+                    Decimal!(50),
+                )?)
                 .order_type(OrderType::FOK)
                 .build()
                 .await?;
@@ -4459,8 +4461,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -4520,8 +4522,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -4635,8 +4637,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;
@@ -4687,8 +4689,8 @@ mod v1 {
             let signable = client
                 .limit_order()
                 .token_id(token_1())
-                .price(dec!(0.5))
-                .size(dec!(100))
+                .price(Decimal!(0.5))
+                .size(Decimal!(100))
                 .side(Side::Buy)
                 .build()
                 .await?;

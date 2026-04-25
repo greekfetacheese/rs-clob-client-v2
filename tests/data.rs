@@ -42,10 +42,10 @@ mod health {
 }
 
 mod positions {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::{Client, types::request::PositionsRequest};
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     use super::{test_condition_id, test_user};
@@ -98,7 +98,7 @@ mod positions {
         let pos = &response[0];
         assert_eq!(pos.proxy_wallet, test_user());
         assert_eq!(pos.condition_id, test_condition_id());
-        assert_eq!(pos.size, dec!(100.5));
+        assert_eq!(pos.size, Decimal!(100.5));
         assert_eq!(pos.title, "Will BTC hit $100k?");
         assert!(!pos.redeemable);
         mock.assert();
@@ -138,10 +138,10 @@ mod positions {
 }
 
 mod trades {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::{Client, types::Side, types::request::TradesRequest};
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     use super::{test_condition_id, test_user};
@@ -185,8 +185,8 @@ mod trades {
         assert_eq!(trade.proxy_wallet, test_user());
         assert_eq!(trade.condition_id, test_condition_id());
         assert_eq!(trade.side, Side::Buy);
-        assert_eq!(trade.size, dec!(50.0));
-        assert_eq!(trade.price, dec!(0.55));
+        assert_eq!(trade.size, Decimal!(50.0));
+        assert_eq!(trade.price, Decimal!(0.55));
         assert_eq!(trade.timestamp, 1_703_980_800);
         mock.assert();
 
@@ -263,10 +263,10 @@ mod activity {
 mod holders {
     use std::str::FromStr as _;
 
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::{Client, types::request::HoldersRequest};
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     use super::{U256, address, test_condition_id, test_user};
@@ -325,9 +325,9 @@ mod holders {
         let holders = &response[0].holders;
         assert_eq!(holders.len(), 2);
         assert_eq!(holders[0].proxy_wallet, test_user());
-        assert_eq!(holders[0].amount, dec!(10000.0));
+        assert_eq!(holders[0].amount, Decimal!(10000.0));
         assert_eq!(holders[1].proxy_wallet, holder2);
-        assert_eq!(holders[1].amount, dec!(5000.0));
+        assert_eq!(holders[1].amount, Decimal!(5000.0));
         mock.assert();
 
         Ok(())
@@ -335,10 +335,10 @@ mod holders {
 }
 
 mod value {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::{Client, types::request::ValueRequest};
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     use super::test_user;
@@ -366,7 +366,7 @@ mod value {
 
         assert_eq!(response.len(), 1);
         assert_eq!(response[0].user, test_user());
-        assert_eq!(response[0].value, dec!(12345.67));
+        assert_eq!(response[0].value, Decimal!(12345.67));
         mock.assert();
 
         Ok(())
@@ -374,10 +374,10 @@ mod value {
 }
 
 mod closed_positions {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::{Client, types::request::ClosedPositionsRequest};
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     use super::{test_condition_id, test_user};
@@ -421,8 +421,8 @@ mod closed_positions {
         assert_eq!(response.len(), 1);
         assert_eq!(response[0].proxy_wallet, test_user());
         assert_eq!(response[0].condition_id, test_condition_id());
-        assert_eq!(response[0].realized_pnl, dec!(55.0));
-        assert_eq!(response[0].cur_price, dec!(1.0));
+        assert_eq!(response[0].realized_pnl, Decimal!(55.0));
+        assert_eq!(response[0].cur_price, Decimal!(1.0));
         assert_eq!(response[0].timestamp, 1_703_980_800);
         mock.assert();
 
@@ -431,6 +431,7 @@ mod closed_positions {
 }
 
 mod leaderboard {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::{
         Client,
@@ -438,7 +439,6 @@ mod leaderboard {
         types::{LeaderboardCategory, LeaderboardOrderBy, TimePeriod},
     };
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     use super::{address, test_user};
@@ -481,7 +481,7 @@ mod leaderboard {
         assert_eq!(response.len(), 2);
         assert_eq!(response[0].rank, 1);
         assert_eq!(response[0].proxy_wallet, test_user());
-        assert_eq!(response[0].pnl, dec!(150_000.0));
+        assert_eq!(response[0].pnl, Decimal!(150_000.0));
         assert_eq!(response[0].verified_badge, Some(true));
         assert_eq!(response[1].rank, 2);
         assert_eq!(response[1].proxy_wallet, second_user);
@@ -557,12 +557,12 @@ mod traded {
 }
 
 mod open_interest {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::types::response::Market;
     use polymarket_client_sdk_v2::data::{Client, types::request::OpenInterestRequest};
     use polymarket_client_sdk_v2::types::b256;
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     use super::test_condition_id;
@@ -601,7 +601,7 @@ mod open_interest {
                 "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
             ))
         );
-        assert_eq!(response[0].value, dec!(1_500_000.0));
+        assert_eq!(response[0].value, Decimal!(1_500_000.0));
         assert_eq!(
             response[1].market,
             Market::Market(b256!(
@@ -652,12 +652,12 @@ mod open_interest {
 }
 
 mod live_volume {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::types::response::Market;
     use polymarket_client_sdk_v2::data::{Client, types::request::LiveVolumeRequest};
     use polymarket_client_sdk_v2::types::b256;
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     #[tokio::test]
@@ -691,7 +691,7 @@ mod live_volume {
         let response = client.live_volume(&request).await?;
 
         assert_eq!(response.len(), 1);
-        assert_eq!(response[0].total, dec!(250_000.0));
+        assert_eq!(response[0].total, Decimal!(250_000.0));
         let markets = &response[0].markets;
         assert_eq!(markets.len(), 2);
         assert_eq!(
@@ -700,7 +700,7 @@ mod live_volume {
                 "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
             ))
         );
-        assert_eq!(markets[0].value, dec!(150_000.0));
+        assert_eq!(markets[0].value, Decimal!(150_000.0));
         assert_eq!(
             markets[1].market,
             Market::Market(b256!(
@@ -714,12 +714,12 @@ mod live_volume {
 }
 
 mod builder_leaderboard {
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::{
         Client, types::TimePeriod, types::request::BuilderLeaderboardRequest,
     };
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     #[tokio::test]
@@ -755,7 +755,7 @@ mod builder_leaderboard {
         assert_eq!(response.len(), 2);
         assert_eq!(response[0].rank, 1);
         assert_eq!(response[0].builder, "TopBuilder");
-        assert_eq!(response[0].volume, dec!(5_000_000.0));
+        assert_eq!(response[0].volume, Decimal!(5_000_000.0));
         assert_eq!(response[0].active_users, 1500);
         assert!(response[0].verified);
         mock.assert();
@@ -794,12 +794,12 @@ mod builder_volume {
     use std::str::FromStr as _;
 
     use chrono::{DateTime, Utc};
+    use fixed_num::Dec19x19 as Decimal;
     use httpmock::{Method::GET, MockServer};
     use polymarket_client_sdk_v2::data::{
         Client, types::TimePeriod, types::request::BuilderVolumeRequest,
     };
     use reqwest::StatusCode;
-    use rust_decimal_macros::dec;
     use serde_json::json;
 
     #[tokio::test]
@@ -841,7 +841,7 @@ mod builder_volume {
             DateTime::<Utc>::from_str("2025-01-15T00:00:00Z")?
         );
         assert_eq!(response[0].builder, "Builder1");
-        assert_eq!(response[0].volume, dec!(100_000.0));
+        assert_eq!(response[0].volume, Decimal!(100_000.0));
         assert!(response[0].verified);
         mock.assert();
 
@@ -977,6 +977,7 @@ mod client {
 }
 
 mod types {
+    use fixed_num::Dec19x19 as Decimal;
     use polymarket_client_sdk_v2::ToQueryParams as _;
     use polymarket_client_sdk_v2::data::{
         types::request::{
@@ -988,7 +989,6 @@ mod types {
             PositionSortBy, Side, SortDirection, TimePeriod, TradeFilter,
         },
     };
-    use rust_decimal_macros::dec;
 
     use super::{address, b256};
 
@@ -1115,15 +1115,15 @@ mod types {
 
     #[test]
     fn trade_filter() {
-        TradeFilter::cash(dec!(100.0)).unwrap();
-        TradeFilter::tokens(dec!(0.0)).unwrap();
-        TradeFilter::cash(dec!(-1.0)).unwrap_err();
+        TradeFilter::cash(Decimal!(100.0)).unwrap();
+        TradeFilter::tokens(Decimal!(0.0)).unwrap();
+        TradeFilter::cash(-Decimal!(1.0)).unwrap_err();
     }
 
     #[test]
     fn trades_request_with_filter() {
         let req = TradesRequest::builder()
-            .trade_filter(TradeFilter::cash(dec!(100.0)).unwrap())
+            .trade_filter(TradeFilter::cash(Decimal!(100.0)).unwrap())
             .build();
 
         let qs = req.query_params(None);
@@ -1241,8 +1241,8 @@ mod types {
 }
 
 mod error_display {
+    use fixed_num::Dec19x19 as Decimal;
     use polymarket_client_sdk_v2::data::{types::TradeFilter, types::request::PositionsRequest};
-    use rust_decimal_macros::dec;
 
     use super::address;
 
@@ -1260,7 +1260,7 @@ mod error_display {
 
     #[test]
     fn trade_filter_error_display() {
-        let err = TradeFilter::cash(dec!(-1.0)).unwrap_err();
+        let err = TradeFilter::cash(-Decimal!(1.0)).unwrap_err();
         assert!(err.to_string().contains("-1"));
     }
 }
@@ -1276,9 +1276,9 @@ mod request_query_string_extended {
             ValueRequest,
         },
     };
-    use rust_decimal_macros::dec;
 
     use super::{Address, B256, address, b256};
+    use fixed_num::Dec19x19 as Decimal;
 
     fn test_addr() -> Address {
         address!("56687bf447db6ffa42ffe2204a05edaa20f55839")
@@ -1292,7 +1292,7 @@ mod request_query_string_extended {
     fn positions_request_full() {
         let req = PositionsRequest::builder()
             .user(test_addr())
-            .size_threshold(dec!(100))
+            .size_threshold(Decimal!(100))
             .mergeable(true)
             .sort_by(PositionSortBy::Current)
             .title("test")
@@ -1415,7 +1415,7 @@ mod request_query_string_extended {
     #[test]
     fn trade_filter_tokens() {
         let req = TradesRequest::builder()
-            .trade_filter(TradeFilter::tokens(dec!(50.0)).unwrap())
+            .trade_filter(TradeFilter::tokens(Decimal!(50.0)).unwrap())
             .build();
 
         let qs = req.query_params(None);

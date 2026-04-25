@@ -7,6 +7,7 @@
 mod common;
 
 use alloy::primitives::Address;
+use fixed_num::Dec19x19 as Decimal;
 use httpmock::MockServer;
 use polymarket_client_sdk_v2::clob::types::{
     AcceptRfqQuoteRequest, ApproveRfqOrderRequest, CancelRfqQuoteRequest, CancelRfqRequestRequest,
@@ -14,7 +15,6 @@ use polymarket_client_sdk_v2::clob::types::{
     SignatureType,
 };
 use reqwest::StatusCode;
-use rust_decimal_macros::dec;
 use serde_json::json;
 use uuid::Uuid;
 
@@ -53,8 +53,8 @@ mod request {
         let request = CreateRfqRequestRequest::builder()
             .asset_in(Asset::Asset(U256::from_str("12345")?))
             .asset_out(Asset::Usdc)
-            .amount_in(dec!(50000000))
-            .amount_out(dec!(3000000))
+            .amount_in(Decimal!(50000000))
+            .amount_out(Decimal!(3000000))
             .user_type(SignatureType::Eoa)
             .build();
 
@@ -197,8 +197,8 @@ mod quote {
             .request_id("01968f1e-1182-71c4-9d40-172db9be82af")
             .asset_in(Asset::Usdc)
             .asset_out(Asset::Asset(U256::from_str("12345")?))
-            .amount_in(dec!(3000000))
-            .amount_out(dec!(50000000))
+            .amount_in(Decimal!(3000000))
+            .amount_out(Decimal!(50000000))
             .user_type(SignatureType::Eoa)
             .build();
 
@@ -300,8 +300,8 @@ mod execution {
         let request = AcceptRfqQuoteRequest::builder()
             .request_id("01968f1e-1182-71c4-9d40-172db9be82af")
             .quote_id("0196f484-9fbd-74c1-bfc1-75ac21c1cf84")
-            .maker_amount(dec!(50000000))
-            .taker_amount(dec!(3000000))
+            .maker_amount(Decimal!(50000000))
+            .taker_amount(Decimal!(3000000))
             .token_id(token_1())
             .maker(maker)
             .signer(maker)
@@ -340,8 +340,8 @@ mod execution {
         let request = ApproveRfqOrderRequest::builder()
             .request_id("01968f1e-1182-71c4-9d40-172db9be82af")
             .quote_id("0196f484-9fbd-74c1-bfc1-75ac21c1cf84")
-            .maker_amount(dec!(50000000))
-            .taker_amount(dec!(3000000))
+            .maker_amount(Decimal!(50000000))
+            .taker_amount(Decimal!(3000000))
             .token_id(token_1())
             .maker(maker)
             .signer(maker)
@@ -391,8 +391,8 @@ mod error_handling {
         let request = CreateRfqRequestRequest::builder()
             .asset_in(Asset::Asset(U256::from_str("12345")?))
             .asset_out(Asset::Usdc)
-            .amount_in(dec!(50000000))
-            .amount_out(dec!(3000000))
+            .amount_in(Decimal!(50000000))
+            .amount_out(Decimal!(3000000))
             .user_type(SignatureType::Eoa)
             .build();
 

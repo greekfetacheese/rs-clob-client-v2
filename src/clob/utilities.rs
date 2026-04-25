@@ -2,8 +2,8 @@
 
 use std::fmt::Write as _;
 
-use rust_decimal::Decimal;
-use rust_decimal_macros::dec;
+use fixed_num::Dec19x19 as Decimal;
+use fixed_num::ops::RoundTo;
 use sha1::Digest as _;
 
 use super::types::response::{OrderBookSummaryResponse, OrderSummary};
@@ -205,7 +205,7 @@ pub fn adjust_market_buy_amount(
         amount
     };
 
-    let adjusted = raw.trunc_with_scale(USDC_DECIMALS);
+    let adjusted = raw.round_to(USDC_DECIMALS as i64);
     if adjusted.is_zero() {
         return Err(Error::validation(format!(
             "user_usdc_balance {user_usdc_balance} too small to cover fees at price {price}; \
@@ -219,13 +219,13 @@ pub fn adjust_market_buy_amount(
 #[must_use]
 pub fn price_valid(price: Decimal, tick_size: TickSize) -> bool {
     let ts = Decimal::from(tick_size);
-    price >= ts && price <= dec!(1) - ts
+    price >= ts && price <= Decimal!(1) - ts
 }
 
 #[cfg(test)]
 mod tests {
     use chrono::{DateTime, Utc};
-    use rust_decimal_macros::dec;
+    use fixed_num::{Dec19x19 as Decimal, ops::Abs};
 
     use super::*;
     use crate::types::{B256, U256};
@@ -240,7 +240,7 @@ mod tests {
             .timestamp(Utc::now())
             .bids(bids)
             .asks(asks)
-            .min_order_size(dec!(0.01))
+            .min_order_size(Decimal!(0.01))
             .neg_risk(false)
             .tick_size(TickSize::Hundredth)
             .build()
@@ -256,16 +256,16 @@ mod tests {
         let ob = make_orderbook(
             vec![],
             vec![
-                order(dec!(0.52), dec!(100)),
-                order(dec!(0.51), dec!(100)),
-                order(dec!(0.50), dec!(100)),
+                order(Decimal!(0.52), Decimal!(100)),
+                order(Decimal!(0.51), Decimal!(100)),
+                order(Decimal!(0.50), Decimal!(100)),
             ],
         );
         // 0.50*100 = 50, 0.51*100 = 51 → 101 ≥ 80
-        let amt = Amount::usdc(dec!(80)).unwrap();
+        let amt = Amount::usdc(Decimal!(80)).unwrap();
         assert_eq!(
             calculate_market_price(&ob, Side::Buy, amt, &OrderType::FOK).unwrap(),
-            dec!(0.51),
+            Decimal!(0.51),
         );
     }
 
@@ -274,23 +274,23 @@ mod tests {
         let ob = make_orderbook(
             vec![],
             vec![
-                order(dec!(0.52), dec!(100)),
-                order(dec!(0.51), dec!(100)),
-                order(dec!(0.50), dec!(100)),
+                order(Decimal!(0.52), Decimal!(100)),
+                order(Decimal!(0.51), Decimal!(100)),
+                order(Decimal!(0.50), Decimal!(100)),
             ],
         );
         // 100, then 200 ≥ 150 → 0.51
-        let amt = Amount::shares(dec!(150)).unwrap();
+        let amt = Amount::shares(Decimal!(150)).unwrap();
         assert_eq!(
             calculate_market_price(&ob, Side::Buy, amt, &OrderType::FOK).unwrap(),
-            dec!(0.51),
+            Decimal!(0.51),
         );
     }
 
     #[test]
     fn calculate_market_price_buy_insufficient_fok() {
-        let ob = make_orderbook(vec![], vec![order(dec!(0.50), dec!(10))]);
-        let amt = Amount::usdc(dec!(100)).unwrap();
+        let ob = make_orderbook(vec![], vec![order(Decimal!(0.50), Decimal!(10))]);
+        let amt = Amount::usdc(Decimal!(100)).unwrap();
         calculate_market_price(&ob, Side::Buy, amt, &OrderType::FOK).unwrap_err();
     }
 
@@ -300,12 +300,15 @@ mod tests {
         // falls back to that worst price so the caller gets a safe upper bound.
         let ob = make_orderbook(
             vec![],
-            vec![order(dec!(0.60), dec!(5)), order(dec!(0.50), dec!(10))],
+            vec![
+                order(Decimal!(0.60), Decimal!(5)),
+                order(Decimal!(0.50), Decimal!(10)),
+            ],
         );
-        let amt = Amount::usdc(dec!(1000)).unwrap();
+        let amt = Amount::usdc(Decimal!(1000)).unwrap();
         assert_eq!(
             calculate_market_price(&ob, Side::Buy, amt, &OrderType::FAK).unwrap(),
-            dec!(0.60),
+            Decimal!(0.60),
         );
     }
 
@@ -314,74 +317,74 @@ mod tests {
         // Bids are delivered worst-first on the wire, so the walk proceeds 0.50 → 0.49.
         let ob = make_orderbook(
             vec![
-                order(dec!(0.48), dec!(100)),
-                order(dec!(0.49), dec!(100)),
-                order(dec!(0.50), dec!(100)),
+                order(Decimal!(0.48), Decimal!(100)),
+                order(Decimal!(0.49), Decimal!(100)),
+                order(Decimal!(0.50), Decimal!(100)),
             ],
             vec![],
         );
         // 100, then 200 ≥ 150 → 0.49
-        let amt = Amount::shares(dec!(150)).unwrap();
+        let amt = Amount::shares(Decimal!(150)).unwrap();
         assert_eq!(
             calculate_market_price(&ob, Side::Sell, amt, &OrderType::FOK).unwrap(),
-            dec!(0.49),
+            Decimal!(0.49),
         );
     }
 
     #[test]
     fn calculate_market_price_sell_usdc_is_rejected() {
         let ob = make_orderbook(
-            vec![order(dec!(0.49), dec!(100))],
-            vec![order(dec!(0.51), dec!(100))],
+            vec![order(Decimal!(0.49), Decimal!(100))],
+            vec![order(Decimal!(0.51), Decimal!(100))],
         );
-        let amt = Amount::usdc(dec!(10)).unwrap();
+        let amt = Amount::usdc(Decimal!(10)).unwrap();
         calculate_market_price(&ob, Side::Sell, amt, &OrderType::FOK).unwrap_err();
     }
 
     #[test]
     fn calculate_market_price_empty_orderbook() {
         let ob = make_orderbook(vec![], vec![]);
-        let amt = Amount::usdc(dec!(100)).unwrap();
+        let amt = Amount::usdc(Decimal!(100)).unwrap();
         calculate_market_price(&ob, Side::Buy, amt, &OrderType::FOK).unwrap_err();
     }
 
     #[test]
     fn calculate_market_price_unknown_side_errors() {
         let ob = make_orderbook(
-            vec![order(dec!(0.49), dec!(100))],
-            vec![order(dec!(0.51), dec!(100))],
+            vec![order(Decimal!(0.49), Decimal!(100))],
+            vec![order(Decimal!(0.51), Decimal!(100))],
         );
-        let amt = Amount::usdc(dec!(10)).unwrap();
+        let amt = Amount::usdc(Decimal!(10)).unwrap();
         calculate_market_price(&ob, Side::Unknown, amt, &OrderType::FOK).unwrap_err();
     }
 
     #[test]
     fn price_valid_within_bounds() {
-        assert!(price_valid(dec!(0.5), TickSize::Hundredth));
-        assert!(price_valid(dec!(0.01), TickSize::Hundredth));
-        assert!(price_valid(dec!(0.99), TickSize::Hundredth));
+        assert!(price_valid(Decimal!(0.5), TickSize::Hundredth));
+        assert!(price_valid(Decimal!(0.01), TickSize::Hundredth));
+        assert!(price_valid(Decimal!(0.99), TickSize::Hundredth));
     }
 
     #[test]
     fn price_valid_at_boundaries() {
-        assert!(price_valid(dec!(0.1), TickSize::Tenth));
-        assert!(price_valid(dec!(0.9), TickSize::Tenth));
+        assert!(price_valid(Decimal!(0.1), TickSize::Tenth));
+        assert!(price_valid(Decimal!(0.9), TickSize::Tenth));
     }
 
     #[test]
     fn price_valid_out_of_bounds() {
-        assert!(!price_valid(dec!(0.0), TickSize::Hundredth));
-        assert!(!price_valid(dec!(1.0), TickSize::Hundredth));
-        assert!(!price_valid(dec!(0.005), TickSize::Hundredth));
-        assert!(!price_valid(dec!(0.995), TickSize::Hundredth));
+        assert!(!price_valid(Decimal!(0.0), TickSize::Hundredth));
+        assert!(!price_valid(Decimal!(1.0), TickSize::Hundredth));
+        assert!(!price_valid(Decimal!(0.005), TickSize::Hundredth));
+        assert!(!price_valid(Decimal!(0.995), TickSize::Hundredth));
     }
 
     #[test]
     fn price_valid_all_tick_sizes() {
-        assert!(price_valid(dec!(0.5), TickSize::Tenth));
-        assert!(price_valid(dec!(0.5), TickSize::Hundredth));
-        assert!(price_valid(dec!(0.5), TickSize::Thousandth));
-        assert!(price_valid(dec!(0.5), TickSize::TenThousandth));
+        assert!(price_valid(Decimal!(0.5), TickSize::Tenth));
+        assert!(price_valid(Decimal!(0.5), TickSize::Hundredth));
+        assert!(price_valid(Decimal!(0.5), TickSize::Thousandth));
+        assert!(price_valid(Decimal!(0.5), TickSize::TenThousandth));
     }
 
     #[test]
@@ -391,9 +394,9 @@ mod tests {
             .market(B256::ZERO)
             .asset_id(U256::ZERO)
             .timestamp(ts)
-            .bids(vec![order(dec!(0.49), dec!(50))])
-            .asks(vec![order(dec!(0.51), dec!(25))])
-            .min_order_size(dec!(0.01))
+            .bids(vec![order(Decimal!(0.49), Decimal!(50))])
+            .asks(vec![order(Decimal!(0.51), Decimal!(25))])
+            .min_order_size(Decimal!(0.01))
             .neg_risk(false)
             .tick_size(TickSize::Hundredth)
             .build();
@@ -411,7 +414,7 @@ mod tests {
             .market(B256::ZERO)
             .asset_id(U256::from(1_u64))
             .timestamp(ts)
-            .min_order_size(dec!(0.01))
+            .min_order_size(Decimal!(0.01))
             .neg_risk(false)
             .tick_size(TickSize::Hundredth)
             .build();
@@ -420,7 +423,7 @@ mod tests {
             .market(B256::ZERO)
             .asset_id(U256::from(2_u64))
             .timestamp(ts)
-            .min_order_size(dec!(0.01))
+            .min_order_size(Decimal!(0.01))
             .neg_risk(false)
             .tick_size(TickSize::Hundredth)
             .build();
@@ -431,45 +434,45 @@ mod tests {
     #[test]
     fn adjust_market_buy_no_adjustment_when_balance_sufficient() {
         let result = adjust_market_buy_amount(
-            dec!(100),
-            dec!(1000),
-            dec!(0.5),
-            dec!(0.02),
-            dec!(1),
-            dec!(0),
+            Decimal!(100),
+            Decimal!(1000),
+            Decimal!(0.5),
+            Decimal!(0.02),
+            Decimal!(1),
+            Decimal!(0),
         )
         .unwrap();
-        assert_eq!(result, dec!(100));
+        assert_eq!(result, Decimal!(100));
     }
 
     #[test]
     fn adjust_market_buy_adjusts_when_balance_insufficient() {
         let result = adjust_market_buy_amount(
-            dec!(100),
-            dec!(100),
-            dec!(0.5),
-            dec!(0.02),
-            dec!(1),
-            dec!(0),
+            Decimal!(100),
+            Decimal!(100),
+            Decimal!(0.5),
+            Decimal!(0.02),
+            Decimal!(1),
+            Decimal!(0),
         )
         .unwrap();
-        assert!(result < dec!(100));
-        assert!(result > dec!(0));
+        assert!(result < Decimal!(100));
+        assert!(result > Decimal!(0));
     }
 
     #[test]
     fn adjust_market_buy_with_builder_fee() {
         let result = adjust_market_buy_amount(
-            dec!(100),
-            dec!(100),
-            dec!(0.5),
-            dec!(0),
-            dec!(1),
-            dec!(0.005),
+            Decimal!(100),
+            Decimal!(100),
+            Decimal!(0.5),
+            Decimal!(0),
+            Decimal!(1),
+            Decimal!(0.005),
         )
         .unwrap();
         // effective * 1.005 = 100, truncated to 6 USDC decimals.
-        let expected = (dec!(100) / dec!(1.005)).trunc_with_scale(USDC_DECIMALS);
+        let expected = (Decimal!(100) / Decimal!(1.005)).round_to(USDC_DECIMALS as i64);
         assert_eq!(result, expected);
     }
 
@@ -477,12 +480,12 @@ mod tests {
     fn adjust_market_buy_errors_when_balance_truncates_to_zero() {
         // user_usdc_balance smaller than 1e-6 after fee-divisor → truncates to zero.
         let err = adjust_market_buy_amount(
-            dec!(100),       // wanted amount
-            dec!(0.0000001), // balance well below 1 USDC-micro
-            dec!(0.5),
-            dec!(0.02),
-            dec!(1),
-            dec!(0.005),
+            Decimal!(100),       // wanted amount
+            Decimal!(0.0000001), // balance well below 1 USDC-micro
+            Decimal!(0.5),
+            Decimal!(0.02),
+            Decimal!(1),
+            Decimal!(0.005),
         )
         .unwrap_err();
         assert!(err.to_string().contains("truncated to zero"));
@@ -519,9 +522,14 @@ mod tests {
     fn platform_fee_0_25_exp_2_at_midprice() {
         // price=0.5 → 1.5625
         close_to(
-            calc_platform_fee(dec!(100) * dec!(0.5), dec!(0.5), dec!(0.25), 2),
-            dec!(1.5625),
-            dec!(0.000001),
+            calc_platform_fee(
+                Decimal!(100) * Decimal!(0.5),
+                Decimal!(0.5),
+                Decimal!(0.25),
+                2,
+            ),
+            Decimal!(1.5625),
+            Decimal!(0.000001),
         );
     }
 
@@ -529,21 +537,21 @@ mod tests {
     fn platform_fee_0_25_exp_2_symmetric_prices() {
         // (0.3, 0.7), (0.1, 0.9), (0.05, 0.95), (0.01, 0.99) must all pair up.
         let cases = [
-            (dec!(0.3), dec!(0.7), dec!(1.1025)),
-            (dec!(0.1), dec!(0.9), dec!(0.2025)),
-            (dec!(0.05), dec!(0.95), dec!(0.05640625)),
-            (dec!(0.01), dec!(0.99), dec!(0.00245025)),
+            (Decimal!(0.3), Decimal!(0.7), Decimal!(1.1025)),
+            (Decimal!(0.1), Decimal!(0.9), Decimal!(0.2025)),
+            (Decimal!(0.05), Decimal!(0.95), Decimal!(0.05640625)),
+            (Decimal!(0.01), Decimal!(0.99), Decimal!(0.00245025)),
         ];
         for (p_low, p_high, expected) in cases {
             close_to(
-                calc_platform_fee(dec!(100) * p_low, p_low, dec!(0.25), 2),
+                calc_platform_fee(Decimal!(100) * p_low, p_low, Decimal!(0.25), 2),
                 expected,
-                dec!(0.000001),
+                Decimal!(0.000001),
             );
             close_to(
-                calc_platform_fee(dec!(100) * p_high, p_high, dec!(0.25), 2),
+                calc_platform_fee(Decimal!(100) * p_high, p_high, Decimal!(0.25), 2),
                 expected,
-                dec!(0.000001),
+                Decimal!(0.000001),
             );
         }
     }
@@ -552,9 +560,14 @@ mod tests {
     fn platform_fee_0_25_exp_2_fractional_contracts() {
         // price=0.5, C=125.5 → 1.9609375
         close_to(
-            calc_platform_fee(dec!(125.5) * dec!(0.5), dec!(0.5), dec!(0.25), 2),
-            dec!(1.9609375),
-            dec!(0.000001),
+            calc_platform_fee(
+                Decimal!(125.5) * Decimal!(0.5),
+                Decimal!(0.5),
+                Decimal!(0.25),
+                2,
+            ),
+            Decimal!(1.9609375),
+            Decimal!(0.000001),
         );
     }
 
@@ -564,9 +577,9 @@ mod tests {
     fn builder_fee_1_pct() {
         // 1% on 100 contracts at 50c → 0.5
         close_to(
-            calc_builder_fee(dec!(100) * dec!(0.5), dec!(0.01)),
-            dec!(0.5),
-            dec!(0.000001),
+            calc_builder_fee(Decimal!(100) * Decimal!(0.5), Decimal!(0.01)),
+            Decimal!(0.5),
+            Decimal!(0.000001),
         );
     }
 
@@ -574,9 +587,9 @@ mod tests {
     fn builder_fee_5_pct() {
         // 5% on 200 contracts at 75c → 7.5
         close_to(
-            calc_builder_fee(dec!(200) * dec!(0.75), dec!(0.05)),
-            dec!(7.5),
-            dec!(0.000001),
+            calc_builder_fee(Decimal!(200) * Decimal!(0.75), Decimal!(0.05)),
+            Decimal!(7.5),
+            Decimal!(0.000001),
         );
     }
 
@@ -584,24 +597,31 @@ mod tests {
 
     #[test]
     fn combined_platform_and_builder_fee() {
-        let amount_usd = dec!(100) * dec!(0.5);
-        let platform = calc_platform_fee(amount_usd, dec!(0.5), dec!(0.25), 2);
-        let builder = calc_builder_fee(amount_usd, dec!(0.01));
-        close_to(platform, dec!(1.5625), dec!(0.000001));
-        close_to(builder, dec!(0.5), dec!(0.000001));
-        close_to(platform + builder, dec!(2.0625), dec!(0.000001));
+        let amount_usd = Decimal!(100) * Decimal!(0.5);
+        let platform = calc_platform_fee(amount_usd, Decimal!(0.5), Decimal!(0.25), 2);
+        let builder = calc_builder_fee(amount_usd, Decimal!(0.01));
+        close_to(platform, Decimal!(1.5625), Decimal!(0.000001));
+        close_to(builder, Decimal!(0.5), Decimal!(0.000001));
+        close_to(platform + builder, Decimal!(2.0625), Decimal!(0.000001));
     }
 
     // `adjust_market_buy_amount` boundary behaviour.
 
     #[test]
     fn adjust_buy_balance_strictly_greater_returns_amount_unchanged() {
-        let amount = dec!(50);
-        let price = dec!(0.5);
-        let fee = calc_platform_fee(amount, price, dec!(0.25), 2);
-        let balance = amount + fee + dec!(1); // comfortably above total cost
-        let result =
-            adjust_market_buy_amount(amount, balance, price, dec!(0.25), dec!(2), dec!(0)).unwrap();
+        let amount = Decimal!(50);
+        let price = Decimal!(0.5);
+        let fee = calc_platform_fee(amount, price, Decimal!(0.25), 2);
+        let balance = amount + fee + Decimal!(1); // comfortably above total cost
+        let result = adjust_market_buy_amount(
+            amount,
+            balance,
+            price,
+            Decimal!(0.25),
+            Decimal!(2),
+            Decimal!(0),
+        )
+        .unwrap();
         assert_eq!(result, amount);
     }
 
@@ -609,64 +629,95 @@ mod tests {
     fn adjust_buy_balance_equal_to_total_cost_matches_divide_path() {
         // TS boundary: at `balance == totalCost` the `<=` check fires and returns
         // `balance / divisor`, which equals the original amount by construction.
-        let amount = dec!(50);
-        let price = dec!(0.5);
-        let fee = calc_platform_fee(amount, price, dec!(0.25), 2);
+        let amount = Decimal!(50);
+        let price = Decimal!(0.5);
+        let fee = calc_platform_fee(amount, price, Decimal!(0.25), 2);
         let total_cost = amount + fee;
-        let result =
-            adjust_market_buy_amount(amount, total_cost, price, dec!(0.25), dec!(2), dec!(0))
-                .unwrap();
-        close_to(result, amount, dec!(0.000001));
+        let result = adjust_market_buy_amount(
+            amount,
+            total_cost,
+            price,
+            Decimal!(0.25),
+            Decimal!(2),
+            Decimal!(0),
+        )
+        .unwrap();
+        close_to(result, amount, Decimal!(0.000001));
     }
 
     #[test]
     fn adjust_buy_conserves_notional_platform_only() {
         // balance = amount (no room for fees): adjusted + fee must reconstitute `amount`.
-        let amount = dec!(50);
-        let price = dec!(0.5);
-        let adjusted =
-            adjust_market_buy_amount(amount, amount, price, dec!(0.25), dec!(2), dec!(0)).unwrap();
-        let fee = calc_platform_fee(adjusted, price, dec!(0.25), 2);
-        close_to(adjusted + fee, amount, dec!(0.000001));
+        let amount = Decimal!(50);
+        let price = Decimal!(0.5);
+        let adjusted = adjust_market_buy_amount(
+            amount,
+            amount,
+            price,
+            Decimal!(0.25),
+            Decimal!(2),
+            Decimal!(0),
+        )
+        .unwrap();
+        let fee = calc_platform_fee(adjusted, price, Decimal!(0.25), 2);
+        close_to(adjusted + fee, amount, Decimal!(0.000001));
         assert!(adjusted < amount);
     }
 
     #[test]
     fn adjust_buy_conserves_notional_builder_only() {
-        let amount = dec!(50);
-        let price = dec!(0.5);
-        let builder_rate = dec!(0.01);
-        let adjusted =
-            adjust_market_buy_amount(amount, amount, price, dec!(0), dec!(0), builder_rate)
-                .unwrap();
+        let amount = Decimal!(50);
+        let price = Decimal!(0.5);
+        let builder_rate = Decimal!(0.01);
+        let adjusted = adjust_market_buy_amount(
+            amount,
+            amount,
+            price,
+            Decimal!(0),
+            Decimal!(0),
+            builder_rate,
+        )
+        .unwrap();
         let fee = calc_builder_fee(adjusted, builder_rate);
-        close_to(adjusted + fee, amount, dec!(0.000001));
+        close_to(adjusted + fee, amount, Decimal!(0.000001));
     }
 
     #[test]
     fn adjust_buy_conserves_notional_platform_and_builder() {
-        let amount = dec!(50);
-        let price = dec!(0.5);
-        let builder_rate = dec!(0.01);
-        let adjusted =
-            adjust_market_buy_amount(amount, amount, price, dec!(0.25), dec!(2), builder_rate)
-                .unwrap();
-        let platform = calc_platform_fee(adjusted, price, dec!(0.25), 2);
+        let amount = Decimal!(50);
+        let price = Decimal!(0.5);
+        let builder_rate = Decimal!(0.01);
+        let adjusted = adjust_market_buy_amount(
+            amount,
+            amount,
+            price,
+            Decimal!(0.25),
+            Decimal!(2),
+            builder_rate,
+        )
+        .unwrap();
+        let platform = calc_platform_fee(adjusted, price, Decimal!(0.25), 2);
         let builder = calc_builder_fee(adjusted, builder_rate);
-        close_to(adjusted + platform + builder, amount, dec!(0.000001));
+        close_to(adjusted + platform + builder, amount, Decimal!(0.000001));
     }
 
     #[test]
     fn adjust_buy_conserves_notional_at_price_0_3() {
-        let amount = dec!(30);
-        let price = dec!(0.3);
-        let builder_rate = dec!(0.02);
-        let adjusted =
-            adjust_market_buy_amount(amount, amount, price, dec!(0.25), dec!(2), builder_rate)
-                .unwrap();
-        let platform = calc_platform_fee(adjusted, price, dec!(0.25), 2);
+        let amount = Decimal!(30);
+        let price = Decimal!(0.3);
+        let builder_rate = Decimal!(0.02);
+        let adjusted = adjust_market_buy_amount(
+            amount,
+            amount,
+            price,
+            Decimal!(0.25),
+            Decimal!(2),
+            builder_rate,
+        )
+        .unwrap();
+        let platform = calc_platform_fee(adjusted, price, Decimal!(0.25), 2);
         let builder = calc_builder_fee(adjusted, builder_rate);
-        close_to(adjusted + platform + builder, amount, dec!(0.000001));
+        close_to(adjusted + platform + builder, amount, Decimal!(0.000001));
     }
 
     // Production V2 fee tiers (all exp=1):
@@ -678,19 +729,19 @@ mod tests {
     #[test]
     fn production_fee_sports_v2() {
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.5), dec!(0.03), 1),
-            dec!(1.5),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.5), Decimal!(0.03), 1),
+            Decimal!(1.5),
+            Decimal!(0.000001),
         );
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.3), dec!(0.03), 1),
-            dec!(2.1),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.3), Decimal!(0.03), 1),
+            Decimal!(2.1),
+            Decimal!(0.000001),
         );
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.7), dec!(0.03), 1),
-            dec!(0.9),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.7), Decimal!(0.03), 1),
+            Decimal!(0.9),
+            Decimal!(0.000001),
         );
     }
 
@@ -698,19 +749,19 @@ mod tests {
     fn production_fee_politics_family() {
         // rate=0.04, exp=1 — politics, tech, finance_prices, mentions
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.5), dec!(0.04), 1),
-            dec!(2.0),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.5), Decimal!(0.04), 1),
+            Decimal!(2.0),
+            Decimal!(0.000001),
         );
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.3), dec!(0.04), 1),
-            dec!(2.8),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.3), Decimal!(0.04), 1),
+            Decimal!(2.8),
+            Decimal!(0.000001),
         );
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.7), dec!(0.04), 1),
-            dec!(1.2),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.7), Decimal!(0.04), 1),
+            Decimal!(1.2),
+            Decimal!(0.000001),
         );
     }
 
@@ -718,19 +769,19 @@ mod tests {
     fn production_fee_culture_family() {
         // rate=0.05, exp=1 — culture, weather, general, economics
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.5), dec!(0.05), 1),
-            dec!(2.5),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.5), Decimal!(0.05), 1),
+            Decimal!(2.5),
+            Decimal!(0.000001),
         );
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.3), dec!(0.05), 1),
-            dec!(3.5),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.3), Decimal!(0.05), 1),
+            Decimal!(3.5),
+            Decimal!(0.000001),
         );
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.7), dec!(0.05), 1),
-            dec!(1.5),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.7), Decimal!(0.05), 1),
+            Decimal!(1.5),
+            Decimal!(0.000001),
         );
     }
 
@@ -738,19 +789,19 @@ mod tests {
     fn production_fee_crypto_v2() {
         // rate=0.072, exp=1
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.5), dec!(0.072), 1),
-            dec!(3.6),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.5), Decimal!(0.072), 1),
+            Decimal!(3.6),
+            Decimal!(0.000001),
         );
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.3), dec!(0.072), 1),
-            dec!(5.04),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.3), Decimal!(0.072), 1),
+            Decimal!(5.04),
+            Decimal!(0.000001),
         );
         close_to(
-            calc_platform_fee(dec!(100), dec!(0.7), dec!(0.072), 1),
-            dec!(2.16),
-            dec!(0.000001),
+            calc_platform_fee(Decimal!(100), Decimal!(0.7), Decimal!(0.072), 1),
+            Decimal!(2.16),
+            Decimal!(0.000001),
         );
     }
 
@@ -758,14 +809,14 @@ mod tests {
     fn production_adjust_buy_conserves_notional_across_all_tiers() {
         // For every production tier at prices {0.3, 0.5, 0.7}, `adjust + fee ≈ amount`
         // when `balance == amount` (i.e. the budget is fully consumed).
-        let amount = dec!(100);
+        let amount = Decimal!(100);
         let tiers: [(&str, Decimal, u32); 4] = [
-            ("sports_v2", dec!(0.03), 1),
-            ("politics_family", dec!(0.04), 1),
-            ("culture_family", dec!(0.05), 1),
-            ("crypto_v2", dec!(0.072), 1),
+            ("sports_v2", Decimal!(0.03), 1),
+            ("politics_family", Decimal!(0.04), 1),
+            ("culture_family", Decimal!(0.05), 1),
+            ("crypto_v2", Decimal!(0.072), 1),
         ];
-        let prices = [dec!(0.3), dec!(0.5), dec!(0.7)];
+        let prices = [Decimal!(0.3), Decimal!(0.5), Decimal!(0.7)];
         for (name, rate, exponent) in tiers {
             for price in prices {
                 let adjusted = adjust_market_buy_amount(
@@ -774,7 +825,7 @@ mod tests {
                     price,
                     rate,
                     Decimal::from(exponent),
-                    dec!(0),
+                    Decimal!(0),
                 )
                 .unwrap_or_else(|e| {
                     panic!("adjust failed for {name} @ price={price}: {e}");
@@ -782,7 +833,7 @@ mod tests {
                 let fee = calc_platform_fee(adjusted, price, rate, exponent);
                 let diff = (adjusted + fee - amount).abs();
                 assert!(
-                    diff <= dec!(0.0001),
+                    diff <= Decimal!(0.0001),
                     "tier={name} price={price}: adjusted ({adjusted}) + fee ({fee}) = {} vs \
                      amount {amount}, diff {diff}",
                     adjusted + fee,

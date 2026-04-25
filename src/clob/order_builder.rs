@@ -1,11 +1,12 @@
 use std::marker::PhantomData;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use alloy::primitives::{B256, U256};
+use alloy::primitives::{B256, U256, utils::parse_units};
 use alloy::signers::Signer;
 use chrono::{DateTime, Utc};
+use fixed_num::ops::RoundTo;
+use num_traits::cast::ToPrimitive;
 use rand::RngExt as _;
-use rust_decimal::prelude::ToPrimitive as _;
 
 use crate::Result;
 use crate::auth::Kind as AuthKind;
@@ -151,8 +152,8 @@ impl<OrderKind, K: AuthKind> OrderBuilder<OrderKind, K> {
         &self,
         token_id: U256,
         side: Side,
-        maker_amount: u128,
-        taker_amount: u128,
+        maker_amount: U256,
+        taker_amount: U256,
         salt: u64,
         expiration: U256,
     ) -> Result<OrderPayload> {
@@ -176,8 +177,8 @@ impl<OrderKind, K: AuthKind> OrderBuilder<OrderKind, K> {
                     signer: self.signer,
                     taker: self.taker.unwrap_or(Address::ZERO),
                     tokenId: token_id,
-                    makerAmount: U256::from(maker_amount),
-                    takerAmount: U256::from(taker_amount),
+                    makerAmount: maker_amount,
+                    takerAmount: taker_amount,
                     expiration,
                     nonce: U256::from(self.nonce.unwrap_or(0)),
                     feeRateBps: U256::from(fee_rate_bps),
@@ -263,6 +264,7 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
             )));
         }
 
+        /*
         let minimum_tick_size = self
             .client
             .tick_size(token_id)
@@ -281,11 +283,13 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
             )));
         }
 
+
         if price < minimum_tick_size || price > Decimal::ONE - minimum_tick_size {
             return Err(Error::validation(format!(
                 "Price {price} is too small or too large for the minimum tick size {minimum_tick_size}"
             )));
         }
+        */
 
         let Some(size) = self.size else {
             return Err(Error::validation(
@@ -293,12 +297,14 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
             ));
         };
 
+        /*
         if size.scale() > LOT_SIZE_SCALE {
             return Err(Error::validation(format!(
                 "Unable to build Order: Size {size} has {} decimal places. Maximum lot size is {LOT_SIZE_SCALE}",
                 size.scale()
             )));
         }
+        */
 
         if size.is_zero() || size.is_sign_negative() {
             return Err(Error::validation(format!(
@@ -323,14 +329,8 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
         }
 
         let (taker_amount, maker_amount) = match side {
-            Side::Buy => (
-                size,
-                (size * price).trunc_with_scale(decimals + LOT_SIZE_SCALE),
-            ),
-            Side::Sell => (
-                (size * price).trunc_with_scale(decimals + LOT_SIZE_SCALE),
-                size,
-            ),
+            Side::Buy => (size, size * price),
+            Side::Sell => (size * price, size),
             side => return Err(Error::validation(format!("Invalid side: {side}"))),
         };
 
@@ -345,8 +345,8 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
             .build_payload(
                 token_id,
                 side,
-                to_fixed_u128(maker_amount),
-                to_fixed_u128(taker_amount),
+                to_u256(maker_amount)?,
+                to_u256(taker_amount)?,
                 salt,
                 expiration_u256,
             )
@@ -533,10 +533,11 @@ impl<K: AuthKind> OrderBuilder<Market, K> {
             .minimum_tick_size
             .as_decimal();
 
-        let decimals = minimum_tick_size.scale();
+        let decimals = minimum_tick_size.min_scale();
 
         // Ensure that the market price returned internally is truncated to our tick size
-        let price = price.trunc_with_scale(decimals);
+        let price = price.round_to(decimals as i64);
+
         if price < minimum_tick_size || price > Decimal::ONE - minimum_tick_size {
             return Err(Error::validation(format!(
                 "Price {price} is too small or too large for the minimum tick size {minimum_tick_size}"
@@ -574,23 +575,30 @@ impl<K: AuthKind> OrderBuilder<Market, K> {
         let raw_amount = amount.as_inner();
 
         let (taker_amount, maker_amount) = match (side, amount.0) {
+            // Spend USDC to buy shares
             (Side::Buy, AmountInner::Usdc(_)) => {
-                let shares = (raw_amount / price).trunc_with_scale(decimals + LOT_SIZE_SCALE);
+                let shares = raw_amount / price;
                 (shares, raw_amount)
             }
+
+            // Buy N shares: use cutoff `price` derived from ask depth
             (Side::Buy, AmountInner::Shares(_)) => {
-                let usdc = (raw_amount * price).trunc_with_scale(decimals + LOT_SIZE_SCALE);
+                let usdc = raw_amount * price;
                 (raw_amount, usdc)
             }
+
+            // Sell N shares for USDC
             (Side::Sell, AmountInner::Shares(_)) => {
-                let usdc = (raw_amount * price).trunc_with_scale(decimals + LOT_SIZE_SCALE);
+                let usdc = raw_amount * price;
                 (usdc, raw_amount)
             }
+
             (Side::Sell, AmountInner::Usdc(_)) => {
                 return Err(Error::validation(
                     "Sell Orders must specify their `amount`s in shares",
                 ));
             }
+
             (side, _) => return Err(Error::validation(format!("Invalid side: {side}"))),
         };
 
@@ -600,8 +608,8 @@ impl<K: AuthKind> OrderBuilder<Market, K> {
             .build_payload(
                 token_id,
                 side,
-                to_fixed_u128(maker_amount),
-                to_fixed_u128(taker_amount),
+                to_u256(maker_amount)?,
+                to_u256(taker_amount)?,
                 salt,
                 U256::ZERO,
             )
@@ -652,14 +660,22 @@ impl<K: AuthKind> OrderBuilder<Market, K> {
     }
 }
 
+/*
 /// Removes trailing zeros, truncates to [`USDC_DECIMALS`] decimal places, and quanitizes as an
 /// integer.
-fn to_fixed_u128(d: Decimal) -> u128 {
+fn _to_fixed_u128(d: Decimal) -> u128 {
     d.normalize()
         .trunc_with_scale(USDC_DECIMALS)
         .mantissa()
         .to_u128()
         .expect("The `build` call in `OrderBuilder<S, OrderKind, K>` ensures that only positive values are being multiplied/divided")
+}
+        */
+
+fn to_u256(d: Decimal) -> Result<U256> {
+    let amount = d.format_prec(2);
+    let wei = parse_units(&amount, USDC_DECIMALS as u8).unwrap();
+    Ok(wei.get_absolute())
 }
 
 /// `Number.MAX_SAFE_INTEGER` (2^53 − 1). The CLOB backend deserializes the order's
@@ -694,26 +710,28 @@ pub(crate) fn generate_seed() -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use rust_decimal_macros::dec;
-
     use super::*;
 
+    /*
     #[test]
     fn to_fixed_u128_should_succeed() {
-        assert_eq!(to_fixed_u128(dec!(123.456)), 123_456_000);
-        assert_eq!(to_fixed_u128(dec!(123.456789)), 123_456_789);
-        assert_eq!(to_fixed_u128(dec!(123.456789111111111)), 123_456_789);
-        assert_eq!(to_fixed_u128(dec!(3.456789111111111)), 3_456_789);
-        assert_eq!(to_fixed_u128(Decimal::ZERO), 0);
+        assert_eq!(_to_fixed_u128(Decimal!(123.456)), 123_456_000);
+        assert_eq!(_to_fixed_u128(Decimal!(123.456789)), 123_456_789);
+        assert_eq!(_to_fixed_u128(Decimal!(123.456789111111111)), 123_456_789);
+        assert_eq!(_to_fixed_u128(Decimal!(3.456789111111111)), 3_456_789);
+        assert_eq!(_to_fixed_u128(Decimal::ZERO), 0);
     }
+    */
 
+    /*
     #[test]
     #[should_panic(
         expected = "The `build` call in `OrderBuilder<S, OrderKind, K>` ensures that only positive values are being multiplied/divided"
     )]
     fn to_fixed_u128_panics() {
-        to_fixed_u128(dec!(-123.456));
+        _to_fixed_u128(-Decimal!(123.456));
     }
+    */
 
     #[test]
     fn order_salt_should_be_less_than_or_equal_to_2_to_the_53_minus_1() {

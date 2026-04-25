@@ -265,7 +265,7 @@ pub mod payloads {
 mod market_channel {
     use std::str::FromStr as _;
 
-    use rust_decimal_macros::dec;
+    use fixed_num::Dec19x19 as Decimal;
 
     use super::*;
     use crate::payloads::OTHER_ASSET_ID_STR;
@@ -299,9 +299,9 @@ mod market_channel {
         assert_eq!(book.market, payloads::MARKET);
         assert_eq!(book.bids.len(), 3);
         assert_eq!(book.asks.len(), 3);
-        assert_eq!(book.bids[0].price, dec!(0.48));
-        assert_eq!(book.bids[0].size, dec!(30));
-        assert_eq!(book.asks[0].price, dec!(0.52));
+        assert_eq!(book.bids[0].price, Decimal!(0.48));
+        assert_eq!(book.bids[0].size, Decimal!(30));
+        assert_eq!(book.asks[0].price, Decimal!(0.52));
         assert_eq!(book.hash, Some("0x1234567890abcdef".to_owned()));
     }
 
@@ -329,10 +329,10 @@ mod market_channel {
         let price = result.unwrap().unwrap().unwrap();
 
         assert_eq!(price.price_changes[0].asset_id, asset_id);
-        assert_eq!(price.price_changes[0].price, dec!(0.5));
-        assert_eq!(price.price_changes[0].size, Some(dec!(200)));
-        assert_eq!(price.price_changes[0].best_bid, Some(dec!(0.5)));
-        assert_eq!(price.price_changes[0].best_ask, Some(dec!(1)));
+        assert_eq!(price.price_changes[0].price, Decimal!(0.5));
+        assert_eq!(price.price_changes[0].size, Some(Decimal!(200)));
+        assert_eq!(price.price_changes[0].best_bid, Some(Decimal!(0.5)));
+        assert_eq!(price.price_changes[0].best_ask, Some(Decimal!(1)));
     }
 
     #[tokio::test]
@@ -361,8 +361,8 @@ mod market_channel {
 
         assert_eq!(tsc.asset_id, payloads::asset_id());
         assert_eq!(tsc.market, payloads::MARKET);
-        assert_eq!(tsc.old_tick_size, dec!(0.01));
-        assert_eq!(tsc.new_tick_size, dec!(0.001));
+        assert_eq!(tsc.old_tick_size, Decimal!(0.01));
+        assert_eq!(tsc.new_tick_size, Decimal!(0.001));
         assert_eq!(tsc.timestamp, 100_000_000);
     }
 
@@ -420,7 +420,7 @@ mod market_channel {
 
         assert_eq!(midpoint.asset_id, payloads::asset_id());
         assert_eq!(midpoint.market, payloads::MARKET);
-        assert_eq!(midpoint.midpoint, dec!(0.50));
+        assert_eq!(midpoint.midpoint, Decimal!(0.50));
     }
 
     #[tokio::test]
@@ -455,17 +455,17 @@ mod market_channel {
         // Should only receive the valid midpoint (empty book skipped)
         let result = timeout(Duration::from_secs(2), stream.next()).await;
         let midpoint = result.unwrap().unwrap().unwrap();
-        assert_eq!(midpoint.midpoint, dec!(0.50));
+        assert_eq!(midpoint.midpoint, Decimal!(0.50));
     }
 }
 
 mod user_channel {
+    use fixed_num::Dec19x19 as Decimal;
     use polymarket_client_sdk_v2::auth::Credentials;
     use polymarket_client_sdk_v2::clob::types::Side;
     use polymarket_client_sdk_v2::clob::ws::types::response::{
         OrderMessageType, TradeMessageStatus,
     };
-    use rust_decimal_macros::dec;
     use tokio::time::sleep;
 
     use super::*;
@@ -511,10 +511,10 @@ mod user_channel {
                     "0xff354cd7ca7539dfa9c28d90943ab5779a4eac34b9b37a757d7b32bdfb11790b"
                 );
                 assert_eq!(order.market, payloads::MARKET);
-                assert_eq!(order.price, dec!(0.57));
+                assert_eq!(order.price, Decimal!(0.57));
                 assert_eq!(order.side, Side::Sell);
-                assert_eq!(order.original_size, Some(dec!(10)));
-                assert_eq!(order.size_matched, Some(dec!(0)));
+                assert_eq!(order.original_size, Some(Decimal!(10)));
+                assert_eq!(order.size_matched, Some(Decimal!(0)));
                 assert_eq!(order.outcome, Some("YES".to_owned()));
                 assert_eq!(order.msg_type, Some(OrderMessageType::Placement));
             }
@@ -550,14 +550,14 @@ mod user_channel {
             WsMessage::Trade(trade) => {
                 assert_eq!(trade.id, "28c4d2eb-bbea-40e7-a9f0-b2fdb56b2c2e");
                 assert_eq!(trade.market, payloads::MARKET);
-                assert_eq!(trade.price, dec!(0.57));
-                assert_eq!(trade.size, dec!(10));
+                assert_eq!(trade.price, Decimal!(0.57));
+                assert_eq!(trade.size, Decimal!(10));
                 assert_eq!(trade.side, Side::Buy);
                 assert_eq!(trade.status, TradeMessageStatus::Matched);
                 assert_eq!(trade.outcome, Some("YES".to_owned()));
                 assert_eq!(trade.maker_orders.len(), 1);
-                assert_eq!(trade.maker_orders[0].matched_amount, dec!(10));
-                assert_eq!(trade.maker_orders[0].price, dec!(0.57));
+                assert_eq!(trade.maker_orders[0].matched_amount, Decimal!(10));
+                assert_eq!(trade.maker_orders[0].price, Decimal!(0.57));
                 assert_eq!(
                     trade.taker_order_id,
                     Some(
@@ -1421,7 +1421,7 @@ mod unsubscribe_variants {
 }
 
 mod custom_features {
-    use rust_decimal_macros::dec;
+    use fixed_num::Dec19x19 as Decimal;
 
     use super::*;
 
@@ -1492,9 +1492,9 @@ mod custom_features {
 
         assert_eq!(bba.asset_id, payloads::asset_id());
         assert_eq!(bba.market, payloads::MARKET);
-        assert_eq!(bba.best_bid, dec!(0.48));
-        assert_eq!(bba.best_ask, dec!(0.52));
-        assert_eq!(bba.spread, dec!(0.04));
+        assert_eq!(bba.best_bid, Decimal!(0.48));
+        assert_eq!(bba.best_ask, Decimal!(0.52));
+        assert_eq!(bba.spread, Decimal!(0.04));
     }
 
     #[tokio::test]
@@ -1579,7 +1579,7 @@ mod custom_features {
         // Should only receive best_bid_ask
         let result = timeout(Duration::from_secs(2), stream.next()).await;
         let bba = result.unwrap().unwrap().unwrap();
-        assert_eq!(bba.best_bid, dec!(0.48));
+        assert_eq!(bba.best_bid, Decimal!(0.48));
     }
 
     #[tokio::test]
@@ -1644,9 +1644,9 @@ mod custom_features {
 mod message_parsing {
     use std::str::FromStr as _;
 
+    use fixed_num::Dec19x19 as Decimal;
     use polymarket_client_sdk_v2::clob::types::Side;
     use polymarket_client_sdk_v2::clob::ws::{LastTradePrice, TickSizeChange};
-    use rust_decimal_macros::dec;
 
     use super::*;
 
@@ -1673,10 +1673,10 @@ mod message_parsing {
         // Verify all fields from docs example
         assert_eq!(book.timestamp, 123_456_789_000);
         assert_eq!(book.hash, Some("0x1234567890abcdef".to_owned()));
-        assert_eq!(book.bids[1].price, dec!(0.49));
-        assert_eq!(book.bids[1].size, dec!(20));
-        assert_eq!(book.asks[2].price, dec!(0.54));
-        assert_eq!(book.asks[2].size, dec!(10));
+        assert_eq!(book.bids[1].price, Decimal!(0.49));
+        assert_eq!(book.bids[1].size, Decimal!(20));
+        assert_eq!(book.asks[2].price, Decimal!(0.54));
+        assert_eq!(book.asks[2].size, Decimal!(10));
     }
 
     #[tokio::test]
@@ -1727,15 +1727,15 @@ mod message_parsing {
         let result1 = timeout(Duration::from_secs(2), stream.next()).await;
         let prices = result1.unwrap().unwrap().unwrap();
         assert_eq!(prices.price_changes[0].asset_id, asset_a);
-        assert_eq!(prices.price_changes[0].price, dec!(0.5));
-        assert_eq!(prices.price_changes[0].size, Some(dec!(200)));
+        assert_eq!(prices.price_changes[0].price, Decimal!(0.5));
+        assert_eq!(prices.price_changes[0].size, Some(Decimal!(200)));
         assert_eq!(
             prices.price_changes[0].hash,
             Some("56621a121a47ed9333273e21c83b660cff37ae50".to_owned())
         );
 
         assert_eq!(prices.price_changes[1].asset_id, asset_b);
-        assert_eq!(prices.price_changes[1].price, dec!(0.75));
+        assert_eq!(prices.price_changes[1].price, Decimal!(0.75));
         assert!(prices.price_changes[1].size.is_none());
     }
 
@@ -1746,8 +1746,8 @@ mod message_parsing {
 
         assert_eq!(tsc.asset_id, payloads::asset_id());
         assert_eq!(tsc.market, payloads::MARKET);
-        assert_eq!(tsc.old_tick_size, dec!(0.01));
-        assert_eq!(tsc.new_tick_size, dec!(0.001));
+        assert_eq!(tsc.old_tick_size, Decimal!(0.01));
+        assert_eq!(tsc.new_tick_size, Decimal!(0.001));
         assert_eq!(tsc.timestamp, 100_000_000);
     }
 
@@ -1764,7 +1764,7 @@ mod message_parsing {
             ltp.market,
             b256!("6a67b9d828d53862160e470329ffea5246f338ecfffdf2cab45211ec578b0347")
         );
-        assert_eq!(ltp.price, dec!(0.456));
+        assert_eq!(ltp.price, Decimal!(0.456));
         assert_eq!(ltp.side, Some(Side::Buy));
         assert_eq!(ltp.timestamp, 1_750_428_146_322);
     }

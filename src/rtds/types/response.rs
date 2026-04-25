@@ -178,7 +178,7 @@ pub fn parse_messages(bytes: &[u8]) -> crate::Result<Vec<RtdsMessage>> {
 
 #[cfg(test)]
 mod tests {
-    use rust_decimal_macros::dec;
+    use fixed_num::Dec19x19 as Decimal;
 
     use super::*;
 
@@ -204,7 +204,7 @@ mod tests {
 
         let price = msg.as_crypto_price().unwrap();
         assert_eq!(price.symbol, "solusdt");
-        assert_eq!(price.value, dec!(189.55));
+        assert_eq!(price.value, Decimal!(189.55));
     }
 
     #[test]
@@ -228,7 +228,7 @@ mod tests {
 
         let price = msg.as_chainlink_price().unwrap();
         assert_eq!(price.symbol, "eth/usd");
-        assert_eq!(price.value, dec!(3456.78));
+        assert_eq!(price.value, Decimal!(3456.78));
     }
 
     #[test]

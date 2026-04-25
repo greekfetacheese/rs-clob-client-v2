@@ -995,6 +995,7 @@ mod market_tags {
 
 mod query_string {
     use chrono::{TimeZone as _, Utc};
+    use fixed_num::Dec19x19 as Decimal;
     use polymarket_client_sdk_v2::ToQueryParams as _;
     use polymarket_client_sdk_v2::gamma::types::request::{
         CommentsByIdRequest, CommentsByUserAddressRequest, CommentsRequest, EventByIdRequest,
@@ -1005,7 +1006,6 @@ mod query_string {
     };
     use polymarket_client_sdk_v2::gamma::types::{ParentEntityType, RelatedTagsStatus};
     use polymarket_client_sdk_v2::types::{address, b256};
-    use rust_decimal_macros::dec;
 
     use crate::common::{token_1, token_2};
 
@@ -1151,10 +1151,10 @@ mod query_string {
             .include_template(true)
             .recurrence("weekly".to_owned())
             .closed(false)
-            .liquidity_min(dec!(1000))
-            .liquidity_max(dec!(100_000))
-            .volume_min(dec!(500))
-            .volume_max(dec!(50000))
+            .liquidity_min(Decimal!(1000))
+            .liquidity_max(Decimal!(100_000))
+            .volume_min(Decimal!(500))
+            .volume_max(Decimal!(50000))
             .start_date_min(start_date)
             .start_date_max(end_date)
             .end_date_min(start_date)
@@ -1259,10 +1259,10 @@ mod query_string {
                 "0x0000000000000000000000000000000000000000000000000000000000000001"
             )])
             .market_maker_address(vec![address!("0x0000000000000000000000000000000000000123")])
-            .liquidity_num_min(dec!(1000))
-            .liquidity_num_max(dec!(100_000))
-            .volume_num_min(dec!(500))
-            .volume_num_max(dec!(50000))
+            .liquidity_num_min(Decimal!(1000))
+            .liquidity_num_max(Decimal!(100_000))
+            .volume_num_min(Decimal!(500))
+            .volume_num_max(Decimal!(50000))
             .start_date_min(start_date)
             .start_date_max(end_date)
             .end_date_min(start_date)
@@ -1273,7 +1273,7 @@ mod query_string {
             .uma_resolution_status("resolved".to_owned())
             .game_id("game123".to_owned())
             .sports_market_types(vec!["moneyline".to_owned(), "spread".to_owned()])
-            .rewards_min_size(dec!(100))
+            .rewards_min_size(Decimal!(100))
             .question_ids(vec![
                 b256!("0x0000000000000000000000000000000000000000000000000000000000000001"),
                 b256!("0x0000000000000000000000000000000000000000000000000000000000000002"),

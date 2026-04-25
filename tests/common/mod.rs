@@ -130,5 +130,5 @@ pub fn ensure_version(server: &MockServer, version: u32) {
 
 #[must_use]
 pub fn to_decimal(value: U256) -> Decimal {
-    Decimal::from_str_exact(&value.to_string()).unwrap()
+    Decimal::from_str(&value.to_string()).unwrap()
 }

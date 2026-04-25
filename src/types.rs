@@ -12,12 +12,4 @@ pub use alloy::primitives::{Address, B256, ChainId, Signature, U256, address, b2
 /// Date and time types for timestamps in API responses and order expiration.
 pub use chrono::{DateTime, NaiveDate, Utc};
 /// Arbitrary precision decimal type for prices, sizes, and amounts.
-pub use rust_decimal::Decimal;
-/// Macro for creating [`Decimal`] literals at compile time.
-///
-/// # Example
-/// ```
-/// use polymarket_client_sdk_v2::types::dec;
-/// let price = dec!(0.55);
-/// ```
-pub use rust_decimal_macros::dec;
+pub use fixed_num::Dec19x19 as Decimal;
