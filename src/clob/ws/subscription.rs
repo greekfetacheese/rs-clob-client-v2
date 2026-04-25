@@ -106,10 +106,13 @@ impl SubscriptionManager {
 
     /// Start the reconnection handler that re-subscribes on connection recovery.
     pub fn start_reconnection_handler(self: &Arc<Self>) {
-        let this = Arc::clone(self);
+        // Create a weak reference to avoid leaks
+        let weak_this = Arc::downgrade(self);
+
+        // We still need to listen to state changes
+        let mut state_rx = self.connection.state_receiver();
 
         tokio::spawn(async move {
-            let mut state_rx = this.connection.state_receiver();
             let mut was_connected = state_rx.borrow().is_connected();
 
             loop {
@@ -124,10 +127,17 @@ impl SubscriptionManager {
                 match state {
                     ConnectionState::Connected { .. } => {
                         if was_connected {
-                            // Reconnect to subscriptions
-                            #[cfg(feature = "tracing")]
-                            tracing::debug!("WebSocket reconnected, re-establishing subscriptions");
-                            this.resubscribe_all();
+                            // Upgrade the weak reference to a strong one just for this block
+                            if let Some(this) = weak_this.upgrade() {
+                                #[cfg(feature = "tracing")]
+                                tracing::debug!(
+                                    "WebSocket reconnected, re-establishing subscriptions"
+                                );
+                                this.resubscribe_all();
+                            } else {
+                                // The SubscriptionManager was dropped by the main app. We can safely die.
+                                break;
+                            }
                         }
                         was_connected = true;
                     }
