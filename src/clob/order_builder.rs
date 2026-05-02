@@ -387,21 +387,6 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
         let order = self.build().await?;
         let (signed, _) = client.sign(signer, order).await?;
         let result = client.post_order(signed).await;
-<<<<<<< HEAD
-        if let Err(err) = &result {
-            if let Some(status) = err.downcast_ref::<crate::error::Status>() {
-                if status
-                    .message
-                    .contains(crate::clob::client::ORDER_VERSION_MISMATCH_ERROR)
-                {
-                    let after_version = client.resolve_version(false).await.unwrap_or(0);
-                    if after_version != before_version {
-                        let order = retry.build().await?;
-                        let (signed, _) = client.sign(signer, order).await?;
-                        return client.post_order(signed).await;
-                    }
-                }
-=======
         if let Err(err) = &result
             && let Some(status) = err.downcast_ref::<crate::error::Status>()
             && status
@@ -411,9 +396,8 @@ impl<K: AuthKind> OrderBuilder<Limit, K> {
             let after_version = client.resolve_version(false).await.unwrap_or(0);
             if after_version != before_version {
                 let order = retry.build().await?;
-                let signed = client.sign(signer, order).await?;
+                let (signed, _) = client.sign(signer, order).await?;
                 return client.post_order(signed).await;
->>>>>>> upstream/main
             }
         }
         result
@@ -664,21 +648,6 @@ impl<K: AuthKind> OrderBuilder<Market, K> {
         let order = self.build().await?;
         let (signed, _) = client.sign(signer, order).await?;
         let result = client.post_order(signed).await;
-<<<<<<< HEAD
-        if let Err(err) = &result {
-            if let Some(status) = err.downcast_ref::<crate::error::Status>() {
-                if status
-                    .message
-                    .contains(crate::clob::client::ORDER_VERSION_MISMATCH_ERROR)
-                {
-                    let after_version = client.resolve_version(false).await.unwrap_or(0);
-                    if after_version != before_version {
-                        let order = retry.build().await?;
-                        let (signed, _) = client.sign(signer, order).await?;
-                        return client.post_order(signed).await;
-                    }
-                }
-=======
         if let Err(err) = &result
             && let Some(status) = err.downcast_ref::<crate::error::Status>()
             && status
@@ -688,9 +657,8 @@ impl<K: AuthKind> OrderBuilder<Market, K> {
             let after_version = client.resolve_version(false).await.unwrap_or(0);
             if after_version != before_version {
                 let order = retry.build().await?;
-                let signed = client.sign(signer, order).await?;
+                let (signed, _) = client.sign(signer, order).await?;
                 return client.post_order(signed).await;
->>>>>>> upstream/main
             }
         }
         result

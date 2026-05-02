@@ -6,17 +6,8 @@ use std::sync::atomic::{AtomicU32, Ordering};
 #[cfg(feature = "heartbeats")]
 use std::time::Duration;
 
-use alloy::primitives::{Signature, U256, keccak256};
->>>>>>> upstream/main
-use alloy::signers::Signer;
-use alloy::sol_types::SolStruct as _;
 use alloy::dyn_abi::Eip712Domain;
 use alloy::primitives::{FixedBytes, Signature, U256, keccak256};
-use alloy::signers::Signer;
-use alloy::sol_types::SolStruct as _;
-=======
-use alloy::primitives::{Signature, U256, keccak256};
->>>>>>> upstream/main
 use alloy::signers::Signer;
 use alloy::sol_types::SolStruct as _;
 use alloy::sol_types::SolValue as _;
@@ -1779,21 +1770,20 @@ impl<K: Kind> Client<Authenticated<K>> {
                     verifying_contract: Some(exchange),
                     ..Eip712Domain::default()
                 };
-<<<<<<< HEAD
-                let order_hash = p.order.eip712_signing_hash(&domain);
-                let sig = signer.sign_hash(&order_hash).await?;
-                (sig, order_hash)
-=======
-                if p.order.signatureType == SignatureType::Poly1271 as u8 {
-                    self.sign_poly1271_order(signer, &p.order, &domain, chain_id)
-                        .await?
+
+                let (signature, hash) = if p.order.signatureType == SignatureType::Poly1271 as u8 {
+                    let (sig, hash) = self
+                        .sign_poly1271_order(signer, &p.order, &domain, chain_id)
+                        .await?;
+                    (sig, hash)
                 } else {
-                    signer
-                        .sign_hash(&p.order.eip712_signing_hash(&domain))
-                        .await?
-                        .into()
-                }
->>>>>>> upstream/main
+                    let hash = &p.order.eip712_signing_hash(&domain);
+                    let signature = signer.sign_hash(hash).await?;
+
+                    (OrderSignature::from(signature), *hash)
+                };
+
+                (signature, hash)
             }
             OrderPayload::V1(p) => {
                 let domain = Eip712Domain {
@@ -1803,16 +1793,10 @@ impl<K: Kind> Client<Authenticated<K>> {
                     verifying_contract: Some(config.exchange),
                     ..Eip712Domain::default()
                 };
-<<<<<<< HEAD
-                let order_hash = p.order.eip712_signing_hash(&domain);
-                let sig = signer.sign_hash(&order_hash).await?;
-                (sig, order_hash)
-=======
-                signer
-                    .sign_hash(&p.order.eip712_signing_hash(&domain))
-                    .await?
-                    .into()
->>>>>>> upstream/main
+                let hash = p.order.eip712_signing_hash(&domain);
+                let signature = signer.sign_hash(&hash).await?;
+
+                (OrderSignature::from(signature), hash)
             }
         };
 
@@ -1834,7 +1818,7 @@ impl<K: Kind> Client<Authenticated<K>> {
         order: &crate::clob::types::OrderV2,
         app_domain: &Eip712Domain,
         chain_id: u64,
-    ) -> Result<OrderSignature> {
+    ) -> Result<(OrderSignature, FixedBytes<32>)> {
         let contents_hash = order.eip712_hash_struct();
         let app_domain_separator = app_domain.hash_struct();
 
@@ -1870,7 +1854,9 @@ impl<K: Kind> Client<Authenticated<K>> {
             u16::try_from(ORDER_TYPE_STRING.len()).expect("order type string length fits in u16");
         push_hex(&mut wrapped, &contents_type_len.to_be_bytes());
 
-        Ok(OrderSignature::Wrapped(wrapped))
+        let signature = OrderSignature::Wrapped(wrapped);
+
+        Ok((signature, digest))
     }
 
     /// Posts a signed order to the orderbook.
